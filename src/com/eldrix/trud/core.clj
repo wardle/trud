@@ -1,8 +1,25 @@
 (ns com.eldrix.trud.core
   (:require [clj-http.client :as client]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import [java.time LocalDate Instant]
+           [java.time.format DateTimeFormatter DateTimeParseException]))
 
 (def expected-api-version 1)
+
+;; release date format = CCYY-MM-DD
+(defn- ^LocalDate parse-date [^String s] (try (LocalDate/parse s (DateTimeFormatter/ISO_LOCAL_DATE)) (catch DateTimeParseException _)))
+(defn- ^Instant parse-instant [^String s] (try (Instant/parse s) (catch DateTimeParseException _)))
+
+(def metadata-parsers
+  {:checksumFileLastModifiedTimestamp parse-instant
+   :releaseDate                       parse-date
+   :signatureFileLastModifiedTimestamp    parse-instant
+   :archiveFileLastModifiedTimestamp  parse-instant})
+
+(defn parse-metadata [m]
+  (reduce-kv (fn [x k v]
+               (assoc x k (if-let [parser (get metadata-parsers k)]
+                            (parser v) v))) {} m))
 
 (defn- download
   "Download a file from the URL to the target file.
@@ -37,8 +54,11 @@
          response (client/get url {:as :json})]
      (get-in response [:body :releases]))))
 
+
+
 (comment
-  (def api-key "xxx")
-  (get-release-information api-key 341 true)
+  (def api-key "xx")
+  (def data (get-release-information api-key 341 true))
+  (parse-metadata (first data))
   (client/get "http://example.com/foo.clj" {:as :clojure})
   )
