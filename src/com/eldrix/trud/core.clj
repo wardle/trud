@@ -48,11 +48,14 @@
        (when only-latest? "?latest")))
 
 (defn get-release-information
-  "Returns a sequence of structured metadata about each release of the distribution files.
-  Data are returned as-is from the source API, except that dates are parsed.
+  "Returns a sequence of structured metadata about each release of the
+  distribution files. Data are returned as-is from the source API, except that
+  dates are parsed.
   Parameters:
    - api-key            : your API key from TRUD
-   - release-identifier : an identifier for the release, eg. 341 is the NHS ODS XML distribution."
+   - release-identifier : an identifier for the release
+
+   For example, 341 is the NHS ODS XML distribution."
   ([api-key release-identifier] (get-release-information api-key release-identifier false))
   ([api-key release-identifier only-latest?]
    (let [url (make-release-information-url api-key release-identifier only-latest?)
@@ -66,5 +69,4 @@
   (def api-key "xx")
   (def data (get-release-information api-key 341 true))
   (first data)
-  (client/get "http://example.com/foo.clj" {:as :clojure})
   )
