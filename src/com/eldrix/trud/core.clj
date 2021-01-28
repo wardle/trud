@@ -74,14 +74,16 @@
        (when only-latest? "?latest")))
 
 (defn get-release-information
-  "Returns a sequence of structured metadata about each release of the distribution files.
-  Data are returned as-is from the source API, except that dates are parsed and
-  the release-identifier is included using the key 'releaseIdentifier'.
+  "Returns a sequence of structured metadata about each release of the
+  distribution files. Data are returned as-is from the source API, except that
+  dates are parsed and  the release-identifier is included using the key
+  'releaseIdentifier'.
   Parameters:
    - api-key            : your API key from TRUD
-   - release-identifier : an identifier for the release, eg. 341 is the NHS ODS XML distribution.
+   - release-identifier : an identifier for the release
 
-  By default, only information about the latest release is included."
+   For example, 341 is the NHS ODS XML distribution.
+   By default, only information about the latest release is included."
   ([api-key release-identifier] (get-release-information api-key release-identifier true))
   ([api-key release-identifier only-latest?]
    (let [url (make-release-information-url api-key release-identifier only-latest?)
@@ -156,8 +158,9 @@
    - api-key       : TRUD API key
    - subscriptions : Release subscriptions.
   Result:
-   - release information, including the key :files with a java.nio.file.Path
-     representing the path to the unzipped distribution files.
+   - release information, including the key :download-path with a
+     java.nio.file.Path representing the path to the unzipped distribution
+     files.
 
   Many distributions contain nested zip files which will not be unzipped
   recursively; their processing is the responsibility of the caller."
@@ -175,7 +178,7 @@
               out-dir (Files/createTempDirectory "trud" (make-array FileAttribute 0))]
           (log/debug "Unarchiving release files for" (:release-identifier release) "to" (.getCanonicalPath path))
           (unzip (.toFile path) out-dir)
-          (a/>!! ch (assoc release :files out-dir)))
+          (a/>!! ch (assoc release :download-path out-dir)))
         (a/close! ch)))
     ch))
 
@@ -190,9 +193,10 @@
   (download-updated-releases api-key (map #(hash-map :release-identifier %) release-identifiers)))
 
 (comment
-  (def api-key "xxx")
+  (def api-key "2edb3b7177fbfe3e0fa21d03daa442cb95cfbd5a")
   (def data (get-release-information api-key 341))
   (first data)
+
   (summarise-release (first data))
   (def subscriptions [{:release-identifier 58 :release-date (LocalDate/now)}
                       {:release-identifier 341 :release-date (LocalDate/of 2020 11 19)}])
