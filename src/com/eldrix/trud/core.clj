@@ -158,8 +158,9 @@
    - api-key       : TRUD API key
    - subscriptions : Release subscriptions.
   Result:
-   - release information, including the key :files with a java.nio.file.Path
-     representing the path to the unzipped distribution files.
+   - release information, including the key :download-path with a
+     java.nio.file.Path representing the path to the unzipped distribution
+     files.
 
   Many distributions contain nested zip files which will not be unzipped
   recursively; their processing is the responsibility of the caller."
@@ -177,7 +178,7 @@
               out-dir (Files/createTempDirectory "trud" (make-array FileAttribute 0))]
           (log/debug "Unarchiving release files for" (:release-identifier release) "to" (.getCanonicalPath path))
           (unzip (.toFile path) out-dir)
-          (a/>!! ch (assoc release :files out-dir)))
+          (a/>!! ch (assoc release :download-path out-dir)))
         (a/close! ch)))
     ch))
 
@@ -192,7 +193,7 @@
   (download-updated-releases api-key (map #(hash-map :release-identifier %) release-identifiers)))
 
 (comment
-  (def api-key "xxx")
+  (def api-key "2edb3b7177fbfe3e0fa21d03daa442cb95cfbd5a")
   (def data (get-release-information api-key 341))
   (first data)
 
