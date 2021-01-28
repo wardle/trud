@@ -193,7 +193,8 @@
   (download-updated-releases api-key (map #(hash-map :release-identifier %) release-identifiers)))
 
 (comment
-  (def api-key "2edb3b7177fbfe3e0fa21d03daa442cb95cfbd5a")
+  ;;;; put in your API key here....
+  (def api-key "xxxxxx")
   (def data (get-release-information api-key 341))
   (first data)
 
