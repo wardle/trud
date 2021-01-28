@@ -8,7 +8,8 @@
            [java.time.format DateTimeFormatter DateTimeParseException]
            (java.nio.file.attribute FileAttribute)
            (java.nio.file Files Path)
-           (java.util.zip ZipInputStream)))
+           (java.util.zip ZipInputStream ZipFile)
+           (java.io File)))
 
 (def expected-api-version 1)
 
@@ -64,6 +65,18 @@
             (when-not (.isDirectory parent) (.mkdirs parent))
             (io/copy input (.toFile (.resolve out (.getName entry))))))
         (recur (.getNextEntry input))))))
+
+(defn file-from-zip
+  "Reads a single file from a zip file, returning an InputStream."
+  ([^File zipfile]
+   (with-open [zipfile (new ZipFile zipfile)]
+     (let [entries (iterator-seq (.entries zipfile))
+           entry (first entries)]
+       (.getInputStream zipfile entry))))
+  ([^File zipfile filename]
+   (with-open [zipfile (new ZipFile zipfile)]
+     (when-let [entry (.getEntry zipfile filename)]
+       (.getInputStream zipfile entry)))))
 
 (defn make-release-information-url [api-key release-identifier only-latest?]
   (str "https://isd.digital.nhs.uk/trud3/api/v1/keys/"
@@ -197,7 +210,8 @@
   (def api-key "xxxxxx")
   (def data (get-release-information api-key 341))
   (first data)
-
+  (def archive-zip-file "/tmp/trud16840689948905597534/archive.zip")
+  (file-from-zip (File. archive-zip-file) "HSCOrgRefData_Archive_20201214.xml" nil)
   (summarise-release (first data))
   (def subscriptions [{:release-identifier 58 :release-date (LocalDate/now)}
                       {:release-identifier 341 :release-date (LocalDate/of 2020 11 19)}])
