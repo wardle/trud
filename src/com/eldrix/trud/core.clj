@@ -163,13 +163,17 @@
     (download-url url (.toFile temp-file))
     temp-file))
 
-
 (defn download-updated-releases
   "Downloads the latest reference data releases with the identifiers specified.
   The downloads will be returned on a clojure.async channel.
   Parameters:
    - api-key       : TRUD API key
    - subscriptions : Release subscriptions.
+
+   A subscription is a map containing :release-identifier and an optional
+   :release-date which can be used to indicate which release version is already
+   installed.
+
   Result:
    - release information, including the key :download-path with a
      java.nio.file.Path representing the path to the unzipped distribution
@@ -210,8 +214,6 @@
   (def api-key "xxxxxx")
   (def data (get-release-information api-key 341))
   (first data)
-  (def archive-zip-file "/tmp/trud16840689948905597534/archive.zip")
-  (file-from-zip (File. archive-zip-file) "HSCOrgRefData_Archive_20201214.xml" nil)
   (summarise-release (first data))
   (def subscriptions [{:release-identifier 58 :release-date (LocalDate/now)}
                       {:release-identifier 341 :release-date (LocalDate/of 2020 11 19)}])
