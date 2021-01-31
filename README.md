@@ -19,9 +19,9 @@ e.g. when using deps.edn:
 
 Make sure you use the latest commit hash from [https://github.com/wardle/trud](https://github.com/wardle/trud)
 
-```
+```clojure
  com.eldrix/trud                {:git/url "https://github.com/wardle/trud.git"
-                                             :sha     "774c6e76d681bb318dd2a6a3d174f46e8ba9c831"}
+                                 :sha     "c4de38d56869e30c86dc785fec470da68f6d7be5"}
 ```
 
 ### 3. Work out the subscriptions you need.
