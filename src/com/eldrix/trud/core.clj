@@ -73,16 +73,16 @@
         (recur (.getNextEntry input))))))
 
 (defn file-from-zip
-  "Reads a single file from a zip file, returning an InputStream."
-  ([^File zipfile]
+  "Reads a single file from a zip file, returning an InputStream to fn f."
+  ([^File zipfile f]
    (with-open [zipfile (new ZipFile zipfile)]
      (let [entries (iterator-seq (.entries zipfile))
            entry (first entries)]
-       (.getInputStream zipfile entry))))
-  ([^File zipfile filename]
+       (f (.getInputStream zipfile entry)))))
+  ([^File zipfile f filename]
    (with-open [zipfile (new ZipFile zipfile)]
      (when-let [entry (.getEntry zipfile filename)]
-       (.getInputStream zipfile entry)))))
+       (f (.getInputStream zipfile entry))))))
 
 (defn- make-release-information-url
   "Generate the TRUD API endpoint URL to obtain release information."
