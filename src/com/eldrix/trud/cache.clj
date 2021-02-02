@@ -28,9 +28,9 @@
 
 (defn- cache-path
   "Return the path to be used for the archive."
-  [dir {:keys [releaseIdentifier releaseDate archiveFileName]}]
+  [dir {:keys [itemIdentifier releaseDate archiveFileName]}]
   (let [dir-path ^Path (if (instance? Path dir) dir (Paths/get dir (make-array String 0)))
-        filename (str releaseIdentifier
+        filename (str itemIdentifier
                       "--"
                       (.format releaseDate DateTimeFormatter/ISO_LOCAL_DATE)
                       "--"
@@ -40,7 +40,7 @@
 (defn- validate-file
   "Validates a downloaded release file according to release metadata,
   returning the path if it is valid."
-  [^Path path {:keys [archiveFileSizeBytes checksumFileUrl] :as release}]
+  [^Path path {:keys [archiveFileSizeBytes] :as release}]
   (let [exists? (Files/exists path (make-array LinkOption 0))]
     (when exists?
       (let [size (Files/size path)
@@ -56,44 +56,45 @@
 
 (defn- archive-file-from-cache
   "Return an archive file from the cache, if it exists."
-  [dir {:keys [releaseIdentifier releaseDate archiveFileUrl archiveFileName archiveFileSizeBytes] :as release}]
+  [dir {:keys [itemIdentifier releaseDate archiveFileUrl archiveFileName archiveFileSizeBytes] :as release}]
   (let [cp (cache-path dir release)]
     (validate-file cp release)))
 
 (defn- download-archive-file-to-cache
   "Download an archive file to the cache."
-  [base {:keys [releaseIdentifier releaseDate archiveFileUrl archiveFileName] :as release}]
-  (let [cp (cache-path base release)]
+  [dir {:keys [itemIdentifier releaseDate archiveFileUrl archiveFileName] :as release}]
+  (let [cp (cache-path dir release)]
     (Files/createDirectories (.getParent cp) (make-array FileAttribute 0))
     (download-url archiveFileUrl cp)
     (validate-file cp release)))
 
-(s/def ::releaseIdentifier int?)
+(s/def ::itemIdentifier int?)
 (s/def ::releaseDate (partial instance? LocalDate))
 (s/def ::archiveFileUrl string?)
 (s/def ::archiveFileSizeBytes int?)
 (s/def ::archiveFileName string?)
 
-(s/def ::release (s/keys :req-un [::releaseIdentifier
+(s/def ::release (s/keys :req-un [::itemIdentifier
                                   ::releaseDate
                                   ::archiveFileUrl
                                   ::archiveFileSizeBytes
                                   ::archiveFileName]))
 
 (defn get-archive-file
-  "Get an archive file either from the cache or downloaded from TRUD."
-  [base release]
+  "Get an archive file either from the cache or downloaded from TRUD.
+  Returns result as a `java.nio.file.Path`."
+  [dir release]
   (when-not (s/valid? ::release release)
     (throw (ex-info "invalid release" (s/explain-data ::release release))))
-  (if-let [p (archive-file-from-cache base release)]
+  (if-let [p (archive-file-from-cache dir release)]
     p
     (do
-      (log/debug "downloading release" (select-keys release [:releaseIdentifier]))
-      (download-archive-file-to-cache base release)
-      (archive-file-from-cache base release))))
+      (log/debug "downloading item" (select-keys release [:itemIdentifier :releaseDate]))
+      (download-archive-file-to-cache dir release)
+      (archive-file-from-cache dir release))))
 
 (comment
-  (get-archive-file "/tmp/trud" {:releaseIdentifier    341
+  (get-archive-file "/tmp/trud" {:itemIdentifier       341
                                  :releaseDate          (LocalDate/of 2021 01 29)
                                  :archiveFileUrl       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                                  :archiveFileSizeBytes 13264
