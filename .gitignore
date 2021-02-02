@@ -14,3 +14,4 @@ pom.xml.asc
 .cpcache/
 .idea
 trud.iml
+api-key.txt

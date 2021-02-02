@@ -1,6 +1,7 @@
 (ns com.eldrix.trud.cache
   "Provides a simple caching mechanism for TRUD files."
-  (:require [clojure.java.io :as io]
+  (:require [clojure.spec.alpha :as s]
+            [clojure.java.io :as io]
             [clj-http.client :as client]
             [clojure.tools.logging :as log])
   (:import (java.nio.file Paths Path Files LinkOption)
@@ -67,9 +68,23 @@
     (download-url archiveFileUrl cp)
     (validate-file cp release)))
 
+(s/def ::releaseIdentifier int?)
+(s/def ::releaseDate (partial instance? LocalDate))
+(s/def ::archiveFileUrl string?)
+(s/def ::archiveFileSizeBytes int?)
+(s/def ::archiveFileName string?)
+
+(s/def ::release (s/keys :req-un [::releaseIdentifier
+                                  ::releaseDate
+                                  ::archiveFileUrl
+                                  ::archiveFileSizeBytes
+                                  ::archiveFileName]))
+
 (defn get-archive-file
   "Get an archive file either from the cache or downloaded from TRUD."
   [base release]
+  (when-not (s/valid? ::release release)
+    (throw (ex-info "invalid release" (s/explain-data ::release release))))
   (if-let [p (archive-file-from-cache base release)]
     p
     (do
