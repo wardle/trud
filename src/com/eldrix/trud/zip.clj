@@ -66,7 +66,6 @@
           (map #(.relativize p %))                          ;; generate a relative path
           (filter #(re-matches q (.toString %)))            ;; filter matching based on path
           (map #(.resolve p ^Path %)))                      ;; finally, back to an absolute path
-
      ;; return an empty slot if we haven't been able to resolve anything sensible
      :else
      nil)))
