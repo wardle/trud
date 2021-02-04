@@ -43,8 +43,9 @@ Here I use `"/tmp/trud"`.
 The result will be a map of data direct from the TRUD API for item `341`.
 The archive file will have been downloaded and available via `:archiveFilePath`
 
-```clojure
 Result:
+
+```clojure
 {:checksumFileLastModifiedTimestamp #object[java.time.Instant 0x72d19fd2 "2021-01-29T13:28:21Z"],
 :publicKeyFileSizeBytes 1736,
 :checksumFileSizeBytes 187,
@@ -72,4 +73,20 @@ Result:
 ```
 
 Once you have the zip file, you can unzip to a temporary directory and
-process, as necessary.
+process, as necessary For convenience, you can use the utility functions in
+`com.eldrix.trud.zip`.
+
+Here we are looking at the NHS ODS XML distribution, which always contains
+two nested zip files "archive.zip" and "fullfile.zip". Here we extract 
+any .xml files using a regexp in our nested query:
+
+```clojure
+(require '[com.eldrix.trud.zip :refer [unzip2 delete-paths]])
+(def ods-xml-files [(:archiveFilePath latest)
+                    ["archive.zip" #"\w+.xml"]
+                    ["fullfile.zip" #"\w+.xml"]])
+(def results (unzip2 ods-xml-files))
+(get-in results [1 1])    ;; sequence of any XML files in archive zip
+(get-in results [2 1])    ;; sequence of any XML files in fullfile.zip
+(delete-paths results)
+```
