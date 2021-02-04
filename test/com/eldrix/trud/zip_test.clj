@@ -15,7 +15,7 @@
 (deftest simple
   (let [paths (zip/unzip2 test-query)]
     (is (= 15 (count (flatten paths))))
-    (doseq [path paths]
+    (doseq [path (flatten paths)]
       (is (instance? Path path)))
     (let [z1f1 (get-in paths [1 1])]                        ;; use coordinates to get what we need
       (is (str/ends-with? (.toString z1f1) "z1f1")))
