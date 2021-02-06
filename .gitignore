@@ -16,3 +16,5 @@ pom.xml.asc
 trud.iml
 api-key.txt
 .eastwood
+.clj-kondo
+.calva
