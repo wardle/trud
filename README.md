@@ -90,3 +90,16 @@ any .xml files using a regexp in our nested query:
 (get-in results [2 1])    ;; sequence of any XML files in fullfile.zip
 (delete-paths results)
 ```
+
+### 5. Using from command-line
+
+While not primarily designed to be used from the command-line, it is possible
+to use this as a tool to automatically download multiple distributions from
+the NHS Digital service.
+
+Here, include the right API key and distributions 101 and 105 will be downloaded
+into the archive directory specified.
+
+```shell
+clj -X com.eldrix.trud.core/download :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
+```
