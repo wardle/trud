@@ -36,12 +36,15 @@
   including extracting nested zip files.
 
   A query is a potentially nested vector of strings or paths.
-  [\"test.zip\" [\"nested1.zip\"] [\"nested2.zip\" \"file.txt\"]]
+  [\"test.zip\"
+   [\"nested1.zip\"]
+   [\"nested2.zip\" \"file.txt\"]]
 
   This will extract the test.zip file, extract the files in both nested1.zip
   and nested2.zip and also returns a path for `file.txt` from the nested2.zip.
 
-  Results will be java.nio.file.Path objects in the same shape as the query."
+  Results will be java.nio.file.Path objects in the same shape as the query.
+  For the example below, four paths will be returned."
   ([q] (unzip2 nil q))
   ([^Path p q]
    (cond
