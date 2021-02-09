@@ -5,7 +5,17 @@
 
 (defn get-latest
   "Returns the latest release of the specified item, if existing is outdated.
-  Currently only uses release date and does not use archive timestamp."
+  Currently only uses release date and does not use archive timestamp.
+
+  Result is the data from the source [TRUD API](https://isd.digital.nhs.uk/trud3/user/guest/group/0/api)
+  with except that dates are parsed into java LocalDates to simplify sorting and
+  comparison.
+
+  The following keys are added:
+  - :needsUpdate?     : indicates if your current version (`existing-date`) is
+                        outdated.
+  - :archiveFilePath  : a `java.nio.files.Path` to the downloaded
+                        distribution, if an update is required."
   ([config item-identifier] (get-latest config item-identifier nil))
   ([{:keys [api-key cache-dir show-progress?] :as config} item-identifier existing-date]
    (when-let [latest (release/get-latest api-key item-identifier)]

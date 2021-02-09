@@ -33,7 +33,7 @@
                (when show-progress? (pr/print (pr/done (pr/tick progress total))))
                (do (.write output buffer 0 size)
                    (when (and show-progress? (or (= 0 (mod count 100)))) (pr/print (pr/tick progress total)))
-                   (recur (inc count) (+ total size)))))))))))
+                   (recur (inc count) (long (+ total size))))))))))))
 
 (defn- cache-path
   "Return the path to be used for the archive."
@@ -49,7 +49,7 @@
 (defn- validate-file
   "Validates a downloaded release file according to release metadata,
   returning the path if it is valid."
-  [^Path path {:keys [archiveFileSizeBytes] :as release}]
+  [^Path path {:keys [itemIdentifier archiveFileSizeBytes] :as release}]
   (let [exists? (Files/exists path (make-array LinkOption 0))]
     (when exists?
       (let [size (Files/size path)
@@ -59,7 +59,7 @@
           (and exists? right-size? checksum?)
           path
           (not right-size?)
-          (println "Incorrect cached file size:" {:expected archiveFileSizeBytes :got size})
+          (println "Unable to use cached archive: incorrect file size:" {:itemIdentifier itemIdentifier :expected archiveFileSizeBytes :got size})
           (not checksum?)
           (println "Incorrect checksum for cached file."))))))
 
