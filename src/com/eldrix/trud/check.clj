@@ -23,7 +23,6 @@
             [clojure.string :as str]
             [clojure.zip :as zip]
             [clojure.data.zip.xml :as zx]
-            [clojure.java.io :as io]
             [clj-http.client :as client]
             [buddy.core.codecs :as codecs]
             [buddy.core.hash :as hash])
@@ -74,5 +73,5 @@
   (def release (release/get-latest api-key 341))
   release
   (fetch-fciv (:checksumFileUrl release))
-  (valid? release (File. "/tmp/trud/341--2021-01-29--hscorgrefdataxml_data_1.0.0_20210129000001.zip"))
+  (valid-checksum? release (File. "/tmp/trud/341--2021-01-29--hscorgrefdataxml_data_1.0.0_20210129000001.zip"))
   )
