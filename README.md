@@ -13,7 +13,31 @@ You will need to register as a user of TRUD and get an API key.
 
 Login here [https://isd.digital.nhs.uk/trud3/user/guest/group/0/login/form](https://isd.digital.nhs.uk/trud3/user/guest/group/0/login/form).
 
-### 2. Include the trud library in your project
+Choose your products and request a subscription using their portal. 
+
+There is no API for this part. Login to TRUD and get the item identifiers
+for the distributions you want.
+
+
+### 2. Using from command-line
+
+While not primarily designed to be used from the command-line, it is possible
+to use this as a tool to automatically download multiple distributions from
+the NHS Digital service to a directory of your choosing.
+
+Here, include the right API key and distributions 101 and 105 will be downloaded
+into the archive directory specified.
+
+From source code:
+
+```shell
+clj -X com.eldrix.trud.core/download :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
+```
+
+If there is interest, it would be straightforward to make a simple command-line 
+tool. Raise an issue if you need this.
+
+### 3. Include the trud library in your project
 
 e.g. when using deps.edn:
 
@@ -23,11 +47,6 @@ Make sure you use the latest commit hash from [https://github.com/wardle/trud](h
  com.eldrix/trud                {:git/url "https://github.com/wardle/trud.git"
                                  :sha     "xxx"}
 ```
-
-### 3. Work out the subscriptions you need.
-
-There is no API for this part. Login to TRUD and get the item identifiers
-for the distributions you want.
 
 ### 4. Use the trud library 
 
@@ -41,7 +60,9 @@ Here I use `"/tmp/trud"`.
 ```
 
 The result will be a map of data direct from the TRUD API for item `341`.
-The archive file will have been downloaded and available via `:archiveFilePath`
+The archive file will have been downloaded and available via `:archiveFilePath`.
+It will have had some integrity checks made, including checks on file size
+and message digest (checksumming).
 
 Result:
 
@@ -76,6 +97,8 @@ be publicly shared.)
 "/tmp/trud/341--2021-01-29--hscorgrefdataxml_data_1.0.0_20210129000001.zip"]}
 ```
 
+### 5. Processing your zip file (optional)
+
 Once you have the zip file, you can unzip to a temporary directory and
 process, as necessary For convenience, you can use the utility functions in
 `com.eldrix.trud.zip`.
@@ -95,15 +118,24 @@ any .xml files using a regexp in our nested query:
 (delete-paths results)
 ```
 
-### 5. Using from command-line
 
-While not primarily designed to be used from the command-line, it is possible
-to use this as a tool to automatically download multiple distributions from
-the NHS Digital service.
+# Developer information (optional)
 
-Here, include the right API key and distributions 101 and 105 will be downloaded
-into the archive directory specified.
+Identify outdated dependencies:
+```shell
+clj -M:outdated
+```
+
+Run compilation checks
 
 ```shell
-clj -X com.eldrix.trud.core/download :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
+clj -M:check
+```
+
+Run linting
+
+```shell
+clj -M:lint/eastwood
+clj -M:lint/kondo
+
 ```
