@@ -10,7 +10,6 @@
            (java.time.format DateTimeFormatter)
            (java.nio.file.attribute FileAttribute)))
 
-
 (defn- download-url
   "Download a file from the URL to the target path.
    Parameters:
@@ -27,13 +26,13 @@
                  output (io/output-stream (.toFile target))]
        (let [buffer (make-array Byte/TYPE buffer-size)
              progress (pr/progress-bar expected-size-bytes)]
-         (loop [count 0 total 0]
+         (loop [count 0 current-total 0]
            (let [size (.read input buffer)]
              (if-not (pos? size)
-               (when show-progress? (pr/print (pr/done (pr/tick progress total))))
+               (when show-progress? (pr/print (pr/done (pr/tick progress current-total))))
                (do (.write output buffer 0 size)
-                   (when (and show-progress? (= 0 (mod count 100))) (pr/print (pr/tick progress total)))
-                   (recur (inc count) (long (+ total size))))))))))))
+                   (when (and show-progress? (= 0 (mod count 100))) (pr/print (pr/tick progress current-total)))
+                   (recur (inc count) (long (+ current-total size))))))))))))
 
 (defn- cache-path
   "Return the path to be used for the archive."
