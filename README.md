@@ -1,7 +1,6 @@
 # trud
 [![Scc Count Badge](https://sloc.xyz/github/wardle/trud)](https://github.com/wardle/trud/)
 [![Scc Cocomo Badge](https://sloc.xyz/github/wardle/trud?category=cocomo&avg-wage=100000)](https://github.com/wardle/trud/)
-[![CircleCI](https://circleci.com/gh/wardle/trud.svg?style=svg)](https://circleci.com/gh/wardle/trud)
 
 A clojure library to automate downloads from the UK TRUD (Technology Reference data Update Distribution).
 
