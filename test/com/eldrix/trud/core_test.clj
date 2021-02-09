@@ -1,7 +1,6 @@
 (ns com.eldrix.trud.core-test
   (:require [clojure.test :refer :all]
-            [com.eldrix.trud.release :as release])
-  (:import [java.time LocalDate]))
+            [com.eldrix.trud.release :as release]))
 
 
 (deftest get-releases
