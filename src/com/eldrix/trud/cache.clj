@@ -3,6 +3,7 @@
   (:require [clojure.spec.alpha :as s]
             [clojure.java.io :as io]
             [clj-http.client :as client]
+            [com.eldrix.trud.check :as check]
             [progrock.core :as pr])
   (:import (java.nio.file Paths Path Files LinkOption)
            (java.time LocalDate)
@@ -53,14 +54,14 @@
     (when exists?
       (let [size (Files/size path)
             right-size? (= archiveFileSizeBytes size)
-            checksum? (when right-size? true)]              ;; TODO: implement checksum check?
+            checksum? (when right-size? (check/valid-checksum? release (.toFile path)))]
         (cond
           (and exists? right-size? checksum?)
           path
           (not right-size?)
           (println "Incorrect cached file size:" {:expected archiveFileSizeBytes :got size})
           (not checksum?)
-          (println "Incorrect checksum for cached file" {:release release}))))))
+          (println "Incorrect checksum for cached file."))))))
 
 (defn- archive-file-from-cache
   "Return an archive file from the cache, if it exists."
@@ -114,4 +115,7 @@
                                  :archiveFileUrl       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                                  :archiveFileSizeBytes 13264
                                  :archiveFileName      "dummy.pdf"})
+
+
+
   )
