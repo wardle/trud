@@ -45,6 +45,10 @@ The archive file will have been downloaded and available via `:archiveFilePath`
 
 Result:
 
+(note: this result includes URLs generated using one of my old API keys. 
+Your URLs will be different as they will include your API key and should not
+be publicly shared.)
+
 ```clojure
 {:checksumFileLastModifiedTimestamp #object[java.time.Instant 0x72d19fd2 "2021-01-29T13:28:21Z"],
 :publicKeyFileSizeBytes 1736,
