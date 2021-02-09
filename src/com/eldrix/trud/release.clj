@@ -55,7 +55,7 @@
           (map #(assoc % :itemIdentifier item-identifier))))))
 
 (defn get-latest
-  "Returns the latest release of the item specified."
+  "Returns information about the latest release of the item specified."
   [api-key item-identifier]
   (first (get-releases api-key item-identifier {:only-latest true})))
 
