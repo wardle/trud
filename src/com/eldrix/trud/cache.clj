@@ -32,7 +32,7 @@
              (if-not (pos? size)
                (when show-progress? (pr/print (pr/done (pr/tick progress total))))
                (do (.write output buffer 0 size)
-                   (when (and show-progress? (or (= 0 (mod count 100)))) (pr/print (pr/tick progress total)))
+                   (when (and show-progress? (= 0 (mod count 100))) (pr/print (pr/tick progress total)))
                    (recur (inc count) (long (+ total size))))))))))))
 
 (defn- cache-path
