@@ -50,6 +50,7 @@
   ([api-key item-identifier] (get-releases api-key item-identifier {}))
   ([api-key item-identifier {:keys [only-latest?]}]
    (let [url (make-item-releases-url api-key item-identifier only-latest?)
+         _ (println "Attempting to connect to " url)
          response (client/get url {:as :json})
          api-version (get-in response [:body :apiVersion])]
      (when-not (= api-version expected-api-version)
