@@ -26,6 +26,10 @@
 (defn- make-item-releases-url
   "Generate the TRUD API endpoint URL to obtain release data about an item."
   [api-key item-identifier only-latest?]
+  (when-not api-key
+    (throw (IllegalArgumentException. "missing api key")))
+  (when-not item-identifier
+    (throw (IllegalArgumentException. "missing item identifier")))
   (str "https://isd.digital.nhs.uk/trud3/api/v1/keys/"
        api-key
        "/items/"
