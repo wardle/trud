@@ -2,7 +2,8 @@
   "Support for the UK NHS Digital's TRUD.
   TRUD is the Technology Reference data Update Distribution."
   (:require [clojure.tools.logging.readable :as log]
-            [clj-http.client :as client])
+            [clj-http.client :as client]
+            [clojure.string :as str])
   (:import [java.time LocalDate Instant]
            [java.time.format DateTimeFormatter DateTimeParseException]))
 
@@ -26,10 +27,6 @@
 (defn- make-item-releases-url
   "Generate the TRUD API endpoint URL to obtain release data about an item."
   [api-key item-identifier only-latest?]
-  (when-not api-key
-    (throw (IllegalArgumentException. "missing api key")))
-  (when-not item-identifier
-    (throw (IllegalArgumentException. "missing item identifier")))
   (str "https://isd.digital.nhs.uk/trud3/api/v1/keys/"
        api-key
        "/items/"
@@ -50,7 +47,6 @@
   ([api-key item-identifier] (get-releases api-key item-identifier {}))
   ([api-key item-identifier {:keys [only-latest?]}]
    (let [url (make-item-releases-url api-key item-identifier only-latest?)
-         _ (println "Attempting to connect to " url)
          response (client/get url {:as :json})
          api-version (get-in response [:body :apiVersion])]
      (when-not (= api-version expected-api-version)
@@ -65,7 +61,7 @@
   (first (get-releases api-key item-identifier {:only-latest true})))
 
 (comment
-  (def api-key (slurp "api-key.txt"))
+  (def api-key (str/trim-newline  (slurp "api-key.txt")))
   api-key
   (get-latest api-key 341)
   )
