@@ -2,7 +2,8 @@
   "Support for the UK NHS Digital's TRUD.
   TRUD is the Technology Reference data Update Distribution."
   (:require [clojure.tools.logging.readable :as log]
-            [clj-http.client :as client])
+            [clj-http.client :as client]
+            [clojure.string :as str])
   (:import [java.time LocalDate Instant]
            [java.time.format DateTimeFormatter DateTimeParseException]))
 
@@ -55,12 +56,12 @@
           (map #(assoc % :itemIdentifier item-identifier))))))
 
 (defn get-latest
-  "Returns the latest release of the item specified."
+  "Returns information about the latest release of the item specified."
   [api-key item-identifier]
   (first (get-releases api-key item-identifier {:only-latest true})))
 
 (comment
-  (def api-key (slurp "api-key.txt"))
+  (def api-key (str/trim-newline  (slurp "api-key.txt")))
   api-key
   (get-latest api-key 341)
   )

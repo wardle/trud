@@ -1,8 +1,8 @@
 # trud
 
-
 [![Scc Count Badge](https://sloc.xyz/github/wardle/trud)](https://github.com/wardle/trud/)
 [![Scc Cocomo Badge](https://sloc.xyz/github/wardle/trud?category=cocomo&avg-wage=100000)](https://github.com/wardle/trud/)
+[![CircleCI](https://circleci.com/gh/wardle/trud.svg?style=svg)](https://circleci.com/gh/wardle/trud)
 
 A clojure library to automate downloads from the UK TRUD (Technology Reference data Update Distribution).
 
@@ -147,3 +147,6 @@ clj -M:lint/eastwood
 clj -M:lint/kondo
 
 ```
+
+The Circle CI badge indicates the results of automated tests - including a live test against the NHS Digital TRUD service. 
+If these tests fail, it may be because the service is down or there has been a breaking versionc change.

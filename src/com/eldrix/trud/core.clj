@@ -7,11 +7,19 @@
   "Returns the latest release of the specified item, if existing is outdated.
   Currently only uses release date and does not use archive timestamp.
 
+  Parameters:
+  - config : a configuration map containing:
+             - api-key        : your NHS Digital TRUD api key
+             - cache-dir      : where to download and cache distributions
+             - show-progress? : (optional) show progress bar for download.
+
+  - item-identifier : the TRUD API item identifier you want.
+  - existing-date   : (optional) existing date of this item you have
+
   Result is the data from the source [TRUD API](https://isd.digital.nhs.uk/trud3/user/guest/group/0/api)
   with except that dates are parsed into java LocalDates to simplify sorting and
-  comparison.
+  comparison and the following keys are added:
 
-  The following keys are added:
   - :needsUpdate?     : indicates if your current version (`existing-date`) is
                         outdated.
   - :archiveFilePath  : a `java.nio.files.Path` to the downloaded
@@ -36,16 +44,4 @@
 (comment
   (def api-key (slurp "api-key.txt"))
   api-key
-  (def latest (get-latest api-key "/tmp/trud" 341))
-  (def latest (get-latest api-key "/tmp/trud" 101))
-  latest
-  (def ods-xml-files [(:archiveFilePath latest)
-                      ["archive.zip" #"\w+.xml"]
-                      ["fullfile.zip" #"\w+.xml"]])
-  ods-xml-files
-  (def results (com.eldrix.trud.zip/unzip2 ods-xml-files))
-  (get-in results [1 1])                                    ;; sequence of any XML files in archive zip
-  (get-in results [2 1])                                    ;; sequence of any XML files in fullfile.zip
-  (com.eldrix.trud.zip/delete-paths results)
-
-  )
+  (def latest (get-latest api-key "/tmp/trud" 341)))
