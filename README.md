@@ -56,10 +56,7 @@ Make sure you use the latest commit hash from [https://github.com/wardle/trud](h
 ### 4. Use the trud library 
 
 By default, archive files are stored in a cache directory. 
-Here I use `"/tmp
-[![Scc Count Badge](https://sloc.xyz/github/wardle/hermes)](https://github.com/wardle/hermes/)
-[![Scc Cocomo Badge](https://sloc.xyz/github/wardle/hermes?category=cocomo&avg-wage=100000)](https://github.com/wardle/hermes/)
-/trud"`.
+Here I use `"/tmp/trud"`:
 
 ```clojure
 (require '[com.eldrix.trud.core :as trud])
