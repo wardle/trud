@@ -1,7 +1,7 @@
 {
  :paths   ["src" "resources"]
 
- :deps    {org.clojure/clojure       {:mvn/version "1.10.2"}
+ :deps    {org.clojure/clojure       {:mvn/version "1.10.3"}
            org.clojure/data.json     {:mvn/version "1.0.0"}
            org.clojure/data.xml      {:mvn/version "0.2.0-alpha6"}
            org.clojure/data.zip      {:mvn/version "1.0.0"}
@@ -17,13 +17,13 @@
                                                                :sha     "b6b3193fcc42659d7e46ecd1884a228993441182"}}
                       :main-opts   ["-m" "cognitect.test-runner"]}
 
-           :outdated {:extra-deps {antq/antq {:mvn/version "RELEASE"}}
+           :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
                       :main-opts  ["-m" "antq.core"]}
 
            :check
                      {:extra-deps {athos/clj-check
                                    {:git/url "https://github.com/athos/clj-check.git"
-                                    :sha     "cd1f25456de5eebda0a69602dd3445905382b3a4"}}
+                                    :sha     "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
                       :main-opts  ["-m" "clj-check.check"]}
 
            :test/cloverage
@@ -45,7 +45,7 @@
                       :extra-deps {jonase/eastwood {:mvn/version "RELEASE"}}}
 
            :jar
-                     {:replace-deps {seancorfield/depstar {:mvn/version "2.0.171"}}
+                     {:replace-deps {seancorfield/depstar {:mvn/version "2.0.206"}}
                       :exec-fn      hf.depstar/jar
                       :exec-args    {:jar "target/trud-v0.1.0.jar"}}}}
 
