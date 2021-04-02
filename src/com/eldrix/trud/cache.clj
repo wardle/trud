@@ -10,7 +10,7 @@
            (java.time.format DateTimeFormatter)
            (java.nio.file.attribute FileAttribute)))
 
-(defn- download-url
+(defn download-url
   "Download a file from the URL to the target path.
    Parameters:
     - url     : a string representation of a URL.
@@ -64,15 +64,15 @@
 
 (defn- archive-file-from-cache
   "Return an archive file from the cache, if it exists."
-  [dir {:keys [itemIdentifier releaseDate archiveFileUrl archiveFileName archiveFileSizeBytes] :as release}]
+  [dir {:keys [_itemIdentifier _releaseDate _archiveFileUrl _archiveFileName _archiveFileSizeBytes] :as release}]
   (let [cp (cache-path dir release)]
     (validate-file cp release)))
 
 (defn- download-archive-file-to-cache
   "Download an archive file to the cache."
-  ([dir {:keys [itemIdentifier releaseDate archiveFileUrl archiveFileName archiveFileSizeBytes] :as release}]
+  ([dir {:keys [_itemIdentifier _releaseDate _archiveFileUrl _archiveFileName _archiveFileSizeBytes] :as release}]
    (download-archive-file-to-cache dir release {}))
-  ([dir {:keys [itemIdentifier releaseDate archiveFileUrl archiveFileName archiveFileSizeBytes] :as release} {:keys [show-progress?] :as opts}]
+  ([dir {:keys [_itemIdentifier _releaseDate archiveFileUrl _archiveFileName archiveFileSizeBytes] :as release} {:keys [show-progress?] :as opts}]
    (let [cp (cache-path dir release)]
      (Files/createDirectories (.getParent cp) (make-array FileAttribute 0))
      (try
@@ -96,7 +96,7 @@
   "Get an archive file either from the cache or downloaded from TRUD.
   Returns result as a `java.nio.file.Path`."
   ([dir release] (get-archive-file dir release {}))
-  ([dir release {:keys [show-progress?] :as opts}]
+  ([dir release {:keys [_show-progress?] :as opts}]
    (when-not (s/valid? ::release release)
      (throw (ex-info "invalid release" (s/explain-data ::release release))))
    (if-let [p (archive-file-from-cache dir release)]
