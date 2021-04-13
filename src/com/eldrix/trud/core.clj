@@ -2,6 +2,23 @@
   (:require [com.eldrix.trud.cache :as cache]
             [com.eldrix.trud.release :as release]))
 
+(defn get-releases
+  "Returns a sequence of structured metadata about each release of the
+  distribution files. Data are returned as-is from the source API, except that
+  dates are parsed and the item-identifier is included using the key
+  'itemIdentifier'."
+  [api-key item-identifier]
+  (release/get-releases api-key item-identifier))
+
+(defn download-release
+  "Get an archive file either from the cache or downloaded from TRUD.
+  In most circumstances, using `get-latest` is more appropriate.
+  Parameters:
+  - api-key : the TRUD api key
+  - release : release information from TRUD, as returned by `get-releases`.
+  Returns result as a `java.nio.file.Path`"
+  [api-key release]
+  (cache/get-archive-file api-key release))
 
 (defn get-latest
   "Returns the latest release of the specified item, if existing is outdated.
