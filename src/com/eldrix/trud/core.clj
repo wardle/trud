@@ -14,11 +14,11 @@
   "Get an archive file either from the cache or downloaded from TRUD.
   In most circumstances, using `get-latest` is more appropriate.
   Parameters:
-  - api-key : the TRUD api key
-  - release : release information from TRUD, as returned by `get-releases`.
+  - cache-dir : cache directory
+  - release   : release information from TRUD, as returned by `get-releases`.
   Returns result as a `java.nio.file.Path`"
-  [api-key release]
-  (cache/get-archive-file api-key release))
+  [dir release]
+  (cache/get-archive-file dir release))
 
 (defn get-latest
   "Returns the latest release of the specified item, if existing is outdated.
