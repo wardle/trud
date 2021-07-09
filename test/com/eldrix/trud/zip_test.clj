@@ -1,8 +1,9 @@
 (ns com.eldrix.trud.zip-test
   (:require [clojure.test :refer :all]
             [com.eldrix.trud.zip :as zip]
-            [clojure.string :as str])
-  (:import (java.nio.file Path)))
+            [clojure.string :as str]
+            [clojure.java.io :as io])
+  (:import (java.nio.file Path Paths LinkOption Files)))
 
 (def test-query
   ["test/resources/test.zip"
@@ -25,10 +26,14 @@
       (is (= 3 (count z3-files))))
     (zip/delete-paths paths)))
 
+(deftest nested
+  (let [unzipped (zip/unzip-nested (Paths/get (.toURI (io/resource "test.zip"))))]
+    (is (Files/exists unzipped (into-array LinkOption [])))
+    (is (Files/exists (.resolve unzipped "f1") (into-array LinkOption [])))
+    (is (Files/exists (.resolve unzipped "Z1-ZIP/z1f1") (into-array LinkOption [])))
+    (is (Files/exists (.resolve unzipped "z2/z2-zip/z2f1") (into-array LinkOption [])))))
 
 (comment
   (run-tests)
 
-  (def paths (zip/unzip2 test-query))
-  paths
   )

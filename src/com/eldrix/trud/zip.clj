@@ -31,6 +31,53 @@
                    (io/copy input (.toFile (.resolve out-path (.getName entry))))))
                (recur (.getNextEntry input)))))))))
 
+
+(defn is-zip-file? [s]
+  (str/ends-with? (str/lower-case s) ".zip"))
+
+(declare unzip-in-place)
+
+(defn unzip-nested
+  "Unzip a zip archive to the directory specified, unzipping nested zip files.
+  Parameters:
+  - in  : path of zip file
+  - out : path of the directory to which files will be extracted.
+
+  If no `out` path is specified, a temporary directory will be created.
+  The out directory will be created if it doesn't exist."
+  ([^Path in] (unzip-nested in nil))
+  ([^Path in ^Path out]
+   (let [out-path (if out (Files/createDirectories out (make-array FileAttribute 0)) ;; this will be a NOP if directory already exists
+                          (Files/createTempDirectory "trud" (make-array FileAttribute 0)))]
+     (with-open [input (ZipInputStream. (io/input-stream (.toFile in)))]
+       (loop [entry (.getNextEntry input)
+              nested []]
+         (if-not entry
+           (do
+             (unzip-in-place nested)
+             out-path)
+           (do (if (.isDirectory entry)
+                 (Files/createDirectories (.resolve out-path (.getName entry)) (make-array FileAttribute 0))
+                 (let [new-file (.toFile (.resolve out-path (.getName entry)))
+                       parent (.getParentFile new-file)]
+                   (when-not (.isDirectory parent) (.mkdirs parent)) ;; if parent directory doesn't exist, create
+                   (io/copy input (.toFile (.resolve out-path (.getName entry))))))
+               (recur (.getNextEntry input)
+                      (if (is-zip-file? (.getName entry)) (conj nested (.resolve out-path (.getName entry))) nested)))))))))
+
+(defn unzip-in-place
+  "Unzip each path at the same location, creating a directory based on the name
+   of the zip file, replacing any '.' in the filename with '_'. This doesn't
+   check that this won't clobber an existing file.
+
+   Parameters:
+   - paths: a sequence of objects of type `java.nio.file.Path`."
+  [paths]
+  (doseq [^Path path paths]
+    (let [n (.toString (.getFileName path))
+          n' (str/replace n #"\." "-")]
+      (unzip path (.resolve (.getParent path) ^String n')))))
+
 (defn unzip2
   "Resolves a query representing files from a nested directory structure,
   including extracting nested zip files.
