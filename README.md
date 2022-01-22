@@ -145,5 +145,12 @@ clj -M:lint/kondo
 
 ```
 
+To build a library jar and publish to local maven repository:
+```shell
+clj -T:build install
+```
+
 The Circle CI badge indicates the results of automated tests - including a live test against the NHS Digital TRUD service. 
 If these tests fail, it may be because the service is down or there has been a breaking versionc change.
+
+

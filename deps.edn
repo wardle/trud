@@ -12,40 +12,41 @@
            clj-http/clj-http         {:mvn/version "3.12.3"}
            progrock/progrock         {:mvn/version "0.1.2"}}
 
- :aliases {:test     {:extra-paths ["test" "test/resources"]
-                      :extra-deps  {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                               :sha     "f597341b6ca7bb4cf027e0a34a6710ca9cb969da"}}
-                      :main-opts   ["-m" "cognitect.test-runner"]}
+ :aliases {:build
+           {:deps       {io.github.clojure/tools.build {:git/tag "v0.7.5" :git/sha "34727f7"}}
+            :ns-default build}
 
-           :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
-                      :main-opts  ["-m" "antq.core"]}
+           :test
+           {:extra-paths ["test" "test/resources"]
+            :extra-deps  {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                     :sha     "f597341b6ca7bb4cf027e0a34a6710ca9cb969da"}}
+            :main-opts   ["-m" "cognitect.test-runner"]}
+
+           :outdated
+           {:extra-deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
+            :main-opts  ["-m" "antq.core"]}
 
            :check
-                     {:extra-deps {athos/clj-check
-                                   {:git/url "https://github.com/athos/clj-check.git"
-                                    :sha     "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
-                      :main-opts  ["-m" "clj-check.check"]}
+           {:extra-deps {athos/clj-check
+                         {:git/url "https://github.com/athos/clj-check.git"
+                          :sha     "518d5a1cbfcd7c952f548e6dbfcb9a4a5faf9062"}}
+            :main-opts  ["-m" "clj-check.check"]}
 
            :test/cloverage
-                     {:extra-paths ["test"]
-                      :extra-deps  {cloverage/cloverage {:mvn/version "RELEASE"}}
-                      :main-opts   ["-m" "cloverage.coverage"
-                                    "--src-ns-path" "src"
-                                    "--test-ns-path" "test"]
-                      :exec-fn     cloverage.coverage/run-project
-                      :exec-args   {:src-ns-path  ["src"]
-                                    :test-ns-path ["test"]}}
+           {:extra-paths ["test"]
+            :extra-deps  {cloverage/cloverage {:mvn/version "RELEASE"}}
+            :main-opts   ["-m" "cloverage.coverage"
+                          "--src-ns-path" "src"
+                          "--test-ns-path" "test"]
+            :exec-fn     cloverage.coverage/run-project
+            :exec-args   {:src-ns-path  ["src"]
+                          :test-ns-path ["test"]}}
 
            :lint/kondo
-                     {:extra-deps {clj-kondo/clj-kondo {:mvn/version "RELEASE"}}
-                      :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
+           {:extra-deps {clj-kondo/clj-kondo {:mvn/version "RELEASE"}}
+            :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
 
            :lint/eastwood
-                     {:main-opts  ["-m" "eastwood.lint" {:source-paths ["src"]}]
-                      :extra-deps {jonase/eastwood {:mvn/version "RELEASE"}}}
-
-           :jar
-                     {:replace-deps {seancorfield/depstar {:mvn/version "2.0.216"}}
-                      :exec-fn      hf.depstar/jar
-                      :exec-args    {:jar "target/trud-v0.1.0.jar"}}}}
+           {:main-opts  ["-m" "eastwood.lint" {:source-paths ["src"]}]
+            :extra-deps {jonase/eastwood {:mvn/version "RELEASE"}}}}}
 
