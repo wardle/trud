@@ -36,7 +36,8 @@
               :class-dir class-dir}))
 
 (defn deploy
-  "Deploy library to clojars."
+  "Deploy library to clojars.
+  Environment variables CLOJARS_USERNAME and CLOJARS_PASSWORD must be set."
   [_]
   (clean nil)
   (jar nil)
