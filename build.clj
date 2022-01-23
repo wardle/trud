@@ -14,11 +14,16 @@
 (defn jar
   "Create a library jar file."
   [_]
+  (println "Building" lib version)
   (b/write-pom {:class-dir class-dir
                 :lib       lib
                 :version   version
                 :basis     basis
-                :src-dirs  ["src"]})
+                :src-dirs  ["src"]
+                :scm       {:url                 "https://github.com/wardle/trud"
+                            :tag                 (str "v" version)
+                            :connection          "scm:git:git://github.com/wardle/trud.git"
+                            :developerConnection "scm:git:ssh://git@github.com/wardle/trud.git"}})
   (b/copy-dir {:src-dirs   ["src" "resources"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
@@ -29,6 +34,7 @@
   [_]
   (clean nil)
   (jar nil)
+  (println "Installing" lib version)
   (b/install {:basis     basis
               :lib       lib
               :version   version
