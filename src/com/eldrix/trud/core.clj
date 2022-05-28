@@ -1,6 +1,7 @@
 (ns com.eldrix.trud.core
   (:require [com.eldrix.trud.cache :as cache]
-            [com.eldrix.trud.release :as release]))
+            [com.eldrix.trud.release :as release]
+            [clojure.tools.logging.readable :as log]))
 
 (defn get-releases
   "Returns a sequence of structured metadata about each release of the
@@ -52,10 +53,10 @@
   [{:keys [api-key cache-dir items] :as opts}]
   (if-not (and api-key cache-dir items)
     (println "Incorrect parameters\nUsage: clj -X com.eldrix.trud.core/download :api-key '\"XXX\"' :cache-dir '\"/tmp/trud\"' :items '[341 101 105]'")
-    (try
-      (doseq [item items]
-        (get-latest opts item))
-      (catch Exception e (println "Failed to download release: " (.getMessage e))))))
+    (doseq [item items]
+      (log/info "Processing item" item)
+      (let [release (get-latest opts item)]
+        (log/info "Latest for item" item ":" (:id release) (select-keys release [:archiveFilePath :archiveFileSizeBytes]))))))
 
 (comment
   (def api-key (clojure.string/trim-newline (slurp "api-key.txt")))

@@ -15,6 +15,10 @@
                          slipset/deps-deploy           {:mvn/version "RELEASE"}}
             :ns-default build}
 
+           :download
+           {:extra-deps  { ch.qos.logback/logback-classic {:mvn/version "1.2.11"}}
+            :exec-fn com.eldrix.trud.core/download}
+
            :test
            {:extra-paths ["test" "test/resources"]
             :extra-deps  {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"

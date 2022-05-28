@@ -48,16 +48,17 @@
   ([api-key item-identifier] (get-releases api-key item-identifier {}))
   ([api-key item-identifier {:keys [only-latest?]}]
    (let [url (make-item-releases-url api-key item-identifier only-latest?)
-         {:keys [status _headers body error] :as response} @(http/get url)]
-     (if error
-       (log/error "Failed to download " {:url url :status status :error error})
-       (let [body' (json/read-str body :key-fn keyword)
-             api-version (:apiVersion body')]
-         (when-not (= api-version expected-api-version)
-           (log/warn "Unexpected TRUD API version. expected:" expected-api-version "got:" api-version))
-         (->> (:releases body')
-              (map parse-release)
-              (map #(assoc % :itemIdentifier item-identifier))))))))
+         {:keys [status _headers body error]} @(http/get url)
+         body' (json/read-str body :key-fn keyword)
+         api-version (:apiVersion body')]
+     (if (or error (not= 200 status))
+       (throw (ex-info (str (or error (:message body'))
+                            (when (= status 400) " : invalid API key?")) {:url url :status status}))
+       (do (when-not (= api-version expected-api-version)
+             (log/warn "Unexpected TRUD API version." {:expected expected-api-version :actual api-version}))
+           (->> (:releases body')
+                (map parse-release)
+                (map #(assoc % :itemIdentifier item-identifier))))))))
 
 (defn get-latest
   "Returns information about the latest release of the item specified."

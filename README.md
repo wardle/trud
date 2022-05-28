@@ -34,14 +34,38 @@ the NHS Digital service to a directory of your choosing.
 Here, include the right API key and distributions 101 and 105 will be downloaded
 into the archive directory specified.
 
-From source code:
+From source code (you need to escape data literals when invoked this way):
 
 ```shell
-clj -X com.eldrix.trud.core/download :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
+clj -X:download :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
 ```
 
+Parameters:
+- :api-key - the API key for the NHS Digital TRUD service (the key, not a filename of a file containing the key)
+- :cache-dir - a directory to use as a cache, will be created if it doesn't exist
+
+If you ran the above command at intervals, the cache directory would be 
+populated with the latest releases of the items you specify. 
+I have used this approach in a cronjob, for example. Any tools that use `trud`
+for downloads can then easily share the same cache directory.
+
 If there is interest, it would be straightforward to make a simple command-line 
-tool. Raise an issue if you need this.
+tool that can be run as a jar file. Raise an issue if you need this, but I 
+now increasingly simply run from source code, even in production systems.
+
+For example, here I run a command to download the latest versions of items 101 and 105:
+```shell
+mark@jupiter trud % clj -X:download :api-key '"***MY API KEY***"' :cache-dir '"cache"' :items '[101 105]'
+12:22:36.095 [main] INFO com.eldrix.trud.core - Processing item 101
+12:22:41.992 [main] INFO com.eldrix.trud.cache - Item already in cache {:itemIdentifier 101, :archiveFileName "uk_sct2cl_33.0.0_20220511000001Z.zip", :releaseDate #object[java.time.LocalDate 0x24615687 "2022-05-18"]}
+12:22:41.996 [main] INFO com.eldrix.trud.core - Latest for item 101 : "uk_sct2cl_33.0.0_20220511000001Z.zip" {:archiveFilePath #object[sun.nio.fs.UnixPath 0x7f4f1536 "cache/101--2022-05-18--uk_sct2cl_33.0.0_20220511000001Z.zip"], :archiveFileSizeBytes 843903155}
+12:22:41.996 [main] INFO com.eldrix.trud.core - Processing item 105
+12:22:44.644 [main] INFO com.eldrix.trud.cache - Item already in cache {:itemIdentifier 105, :archiveFileName "uk_sct2dr_33.0.0_20220511000001Z.zip", :releaseDate #object[java.time.LocalDate 0x1ad1b737 "2022-05-18"]}
+12:22:44.644 [main] INFO com.eldrix.trud.core - Latest for item 105 : "uk_sct2dr_33.0.0_20220511000001Z.zip" {:archiveFilePath #object[sun.nio.fs.UnixPath 0x342a1f84 "cache/105--2022-05-18--uk_sct2dr_33.0.0_20220511000001Z.zip"], :archiveFileSizeBytes 393105290}
+```
+
+You can of course use `trud` interactively if you wish, but this approach also
+lends itself to automated scripting.
 
 ### 3. Include the trud library in your project
 
