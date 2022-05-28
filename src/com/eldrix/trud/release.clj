@@ -1,8 +1,9 @@
 (ns com.eldrix.trud.release
   "Support for the UK NHS Digital's TRUD.
   TRUD is the Technology Reference data Update Distribution."
-  (:require [clojure.tools.logging.readable :as log]
-            [clj-http.client :as client]
+  (:require [clojure.data.json :as json]
+            [clojure.tools.logging.readable :as log]
+            [org.httpkit.client :as http]
             [clojure.string :as str])
   (:import [java.time LocalDate Instant]
            [java.time.format DateTimeFormatter DateTimeParseException]))
@@ -47,13 +48,16 @@
   ([api-key item-identifier] (get-releases api-key item-identifier {}))
   ([api-key item-identifier {:keys [only-latest?]}]
    (let [url (make-item-releases-url api-key item-identifier only-latest?)
-         response (client/get url {:as :json})
-         api-version (get-in response [:body :apiVersion])]
-     (when-not (= api-version expected-api-version)
-       (log/warn "Unexpected TRUD API version. expected:" expected-api-version "got:" api-version))
-     (->> (get-in response [:body :releases])
-          (map parse-release)
-          (map #(assoc % :itemIdentifier item-identifier))))))
+         {:keys [status _headers body error] :as response} @(http/get url)]
+     (if error
+       (log/error "Failed to download " {:url url :status status :error error})
+       (let [body' (json/read-str body :key-fn keyword)
+             api-version (:apiVersion body')]
+         (when-not (= api-version expected-api-version)
+           (log/warn "Unexpected TRUD API version. expected:" expected-api-version "got:" api-version))
+         (->> (:releases body')
+              (map parse-release)
+              (map #(assoc % :itemIdentifier item-identifier))))))))
 
 (defn get-latest
   "Returns information about the latest release of the item specified."
@@ -61,7 +65,8 @@
   (first (get-releases api-key item-identifier {:only-latest true})))
 
 (comment
-  (def api-key (str/trim-newline  (slurp "api-key.txt")))
+  (def api-key (str/trim-newline (slurp "api-key.txt")))
   api-key
-  (get-latest api-key 341)
-  )
+  (get-releases api-key 341)
+  (get-latest api-key 341))
+

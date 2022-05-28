@@ -23,9 +23,10 @@
             [clojure.string :as str]
             [clojure.zip :as zip]
             [clojure.data.zip.xml :as zx]
-            [clj-http.client :as client]
             [buddy.core.codecs :as codecs]
-            [buddy.core.hash :as hash])
+            [buddy.core.hash :as hash]
+            [org.httpkit.client :as http]
+            [com.eldrix.trud.release :as release])
   (:import (java.io File)))
 
 (defn- parse-fciv-file-entry [loc]
@@ -38,7 +39,7 @@
   as the type of hash (`:MD5` or `:SHA1` at the time of writing) and the
   actual hash as the value."
   [url]
-  (let [fciv (-> (client/get url)
+  (let [fciv (-> @(http/get url)
                  :body
                  xml/parse-str
                  zip/xml-zip
@@ -70,8 +71,8 @@
 (comment
   (require '[com.eldrix.trud.release :as release])
   (def api-key (slurp "api-key.txt"))
+  (release/get-releases api-key 341)
   (def release (release/get-latest api-key 341))
   release
   (fetch-fciv (:checksumFileUrl release))
-  (valid-checksum? release (File. "/tmp/trud/341--2021-01-29--hscorgrefdataxml_data_1.0.0_20210129000001.zip"))
-  )
+  (valid-checksum? release (File. "/tmp/trud/341--2021-01-29--hscorgrefdataxml_data_1.0.0_20210129000001.zip")))

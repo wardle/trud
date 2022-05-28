@@ -2,9 +2,9 @@
   "Provides a simple caching mechanism for TRUD files."
   (:require [clojure.spec.alpha :as s]
             [clojure.java.io :as io]
-            [clj-http.client :as client]
+            [clojure.tools.logging.readable :as log]
             [com.eldrix.trud.check :as check]
-            [progrock.core :as pr])
+            [org.httpkit.client :as http])
   (:import (java.nio.file Paths Path Files LinkOption)
            (java.time LocalDate)
            (java.time.format DateTimeFormatter)
@@ -14,25 +14,19 @@
   "Download a file from the URL to the target path.
    Parameters:
     - url     : a string representation of a URL.
-    - target  : path to target.
-    - options : optional :
-                - :show-progress?      : whether to print a progress bar
-                - :expected-size-bytes : total bytes."
-  ([^String url ^Path target] (download-url url target {}))
-  ([^String url ^Path target {:keys [show-progress? expected-size-bytes]}]
-   (let [request (client/get url {:as :stream})
-         buffer-size (* 1024 10)]
-     (with-open [input (:body request)
-                 output (io/output-stream (.toFile target))]
-       (let [buffer (make-array Byte/TYPE buffer-size)
-             progress (pr/progress-bar expected-size-bytes)]
-         (loop [count 0 current-total 0]
-           (let [size (.read input buffer)]
-             (if-not (pos? size)
-               (when show-progress? (pr/print (pr/done (pr/tick progress current-total))))
-               (do (.write output buffer 0 size)
-                   (when (and show-progress? (= 0 (mod count 100))) (pr/print (pr/tick progress current-total)))
-                   (recur (inc count) (long (+ current-total size))))))))))))
+    - target  : path to target."
+  [^String url ^Path target]
+  @(http/get url {:as :stream}                              ;; body will be a java.io.InputStream
+             (fn [{:keys [status headers body error opts]}]
+               (if error
+                 (throw (ex-info "Unable to download" {:url url :status status :error error}))
+                 (with-open [output (io/output-stream (.toFile target))]
+                   (let [buffer (make-array Byte/TYPE (* 1024 16))]
+                     (loop [count 0 current-total 0]
+                       (let [size (.read body buffer)]
+                         (when (pos? size)
+                           (do (.write output buffer 0 size)
+                               (recur (inc count) (long (+ current-total size)))))))))))))
 
 (defn- cache-path
   "Return the path to be used for the archive."
@@ -58,9 +52,9 @@
           (and exists? right-size? checksum?)
           path
           (not right-size?)
-          (println "Unable to use cached archive: incorrect file size:" {:itemIdentifier itemIdentifier :expected archiveFileSizeBytes :got size})
+          (log/info "Unable to use cached archive: incorrect file size:" {:itemIdentifier itemIdentifier :expected archiveFileSizeBytes :got size})
           (not checksum?)
-          (println "Incorrect checksum for cached file."))))))
+          (log/info "Incorrect checksum for cached file."))))))
 
 (defn- archive-file-from-cache
   "Return an archive file from the cache, if it exists."
@@ -70,15 +64,13 @@
 
 (defn- download-archive-file-to-cache
   "Download an archive file to the cache."
-  ([dir {:keys [_itemIdentifier _releaseDate _archiveFileUrl _archiveFileName _archiveFileSizeBytes] :as release}]
-   (download-archive-file-to-cache dir release {}))
-  ([dir {:keys [_itemIdentifier _releaseDate archiveFileUrl _archiveFileName archiveFileSizeBytes] :as release} {:keys [show-progress?] :as opts}]
-   (let [cp (cache-path dir release)]
-     (Files/createDirectories (.getParent cp) (make-array FileAttribute 0))
-     (try
-       (download-url archiveFileUrl cp {:show-progress? show-progress? :expected-size-bytes archiveFileSizeBytes})
-       (validate-file cp release)
-       (catch Exception e (println "Failed to download item: " e))))))
+  [dir {:keys [_itemIdentifier _releaseDate archiveFileUrl _archiveFileName archiveFileSizeBytes] :as release}]
+  (let [cp (cache-path dir release)]
+    (Files/createDirectories (.getParent cp) (make-array FileAttribute 0))
+    (try
+      (download-url archiveFileUrl cp)
+      (validate-file cp release)
+      (catch Exception e (println "Failed to download item: " e)))))
 
 (s/def ::itemIdentifier int?)
 (s/def ::releaseDate (partial instance? LocalDate))
@@ -95,26 +87,24 @@
 (defn get-archive-file
   "Get an archive file either from the cache or downloaded from TRUD.
   Returns result as a `java.nio.file.Path`."
-  ([dir release] (get-archive-file dir release {}))
-  ([dir release {:keys [_show-progress?] :as opts}]
-   (when-not (s/valid? ::release release)
-     (throw (ex-info "invalid release" (s/explain-data ::release release))))
-   (if-let [p (archive-file-from-cache dir release)]
-     (do
-       (println "Item already in cache" (select-keys release [:itemIdentifier :archiveFileName :releaseDate]))
-       p)
-     (do
-       (println "Downloading item" (select-keys release [:itemIdentifier :archiveFileName :releaseDate]))
-       (download-archive-file-to-cache dir release opts)
-       (archive-file-from-cache dir release)))))
+  [dir release]
+  (when-not (s/valid? ::release release)
+    (throw (ex-info "invalid release" (s/explain-data ::release release))))
+  (if-let [p (archive-file-from-cache dir release)]
+    (do
+      (log/info "Item already in cache" (select-keys release [:itemIdentifier :archiveFileName :releaseDate]))
+      p)
+    (do
+      (log/info "Downloading item" (select-keys release [:itemIdentifier :archiveFileName :releaseDate]))
+      (download-archive-file-to-cache dir release)
+      (archive-file-from-cache dir release))))
 
 (comment
   (get-archive-file "/tmp/trud" {:itemIdentifier       341
                                  :releaseDate          (LocalDate/of 2021 01 29)
                                  :archiveFileUrl       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                                  :archiveFileSizeBytes 13264
-                                 :archiveFileName      "dummy.pdf"})
+                                 :archiveFileName      "dummy.pdf"}))
 
 
 
-  )

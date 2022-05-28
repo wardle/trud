@@ -1,11 +1,10 @@
 (ns com.eldrix.trud.zip
   (:require [clojure.java.io :as io]
             [clojure.string :as str])
-  (:import (java.nio.file Files Path Paths LinkOption)
+  (:import (java.nio.file Files Path Paths LinkOption FileVisitOption)
            (java.nio.file.attribute FileAttribute)
            (java.util.zip ZipInputStream)
-           (java.util.regex Pattern)
-           (org.apache.commons.io FileUtils)))
+           (java.util.regex Pattern)))
 
 (defn unzip
   "Unzip a zip archive to the directory specified.
@@ -121,16 +120,19 @@
      :else
      nil)))
 
+(defn delete-files
+  "Delete all files from the `dir` specified, where `dir` can be anything
+  coercible to a `file` using [[clojure.java.io/as-file]]."
+  [dir]
+  (doseq [f (file-seq dir)]
+    (io/delete-file f :silently true)))
+
 (defn delete-paths
   "Delete all of the paths specified, including nested structures.
   Parameters:
   - paths : a sequence of objects `java.nio.file.Path`."
   [paths]
   (doseq [path (flatten paths)]
-    (when (and (instance? Path path) (Files/exists path (make-array LinkOption 0)))
-      (if (Files/isDirectory path (make-array LinkOption 0))
-        (FileUtils/deleteDirectory (.toFile path))
-        (FileUtils/deleteQuietly (.toFile path))))))
+    (delete-files (.toFile path))))
 
-(comment
-  )
+(comment)
