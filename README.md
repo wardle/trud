@@ -69,14 +69,24 @@ lends itself to automated scripting.
 
 ### 3. Include the trud library in your project
 
-e.g. when using deps.edn:
+[![Clojars Project](https://img.shields.io/clojars/v/com.eldrix/trud.svg)](https://clojars.org/com.eldrix/trud)
 
-Make sure you use the latest commit hash from [https://github.com/wardle/trud](https://github.com/wardle/trud)
+e.g. when using deps.edn, you can reference the library using git or maven coordinates. 
+
+For git coordinates, make sure you use the latest commit hash from [https://github.com/wardle/trud](https://github.com/wardle/trud):
 
 ```clojure
  com.eldrix/trud                {:git/url "https://github.com/wardle/trud.git"
                                  :sha     "xxx"}
 ```
+
+For a maven coordinate, simply specify the latest version from clojars.
+
+```clojure
+com.eldrix/trud {:mvn/version "xxx"}
+```
+
+See [clojars](https://clojars.org/com.eldrix/trud) for the latest release.
 
 ### 4. Use the trud library 
 
