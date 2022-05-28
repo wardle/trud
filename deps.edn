@@ -7,7 +7,8 @@
            org.clojure/data.zip      {:mvn/version "1.0.0"}
            org.clojure/tools.logging {:mvn/version "1.2.4"}
 
-           buddy/buddy-core          {:mvn/version "1.10.413"}
+           buddy/buddy-core          {:mvn/version "1.10.413"
+                                      :exclusions  [cheshire/cheshire]}
            http-kit/http-kit         {:mvn/version "2.5.3"}}
 
  :aliases {:build
@@ -16,8 +17,8 @@
             :ns-default build}
 
            :download
-           {:extra-deps  { ch.qos.logback/logback-classic {:mvn/version "1.2.11"}}
-            :exec-fn com.eldrix.trud.core/download}
+           {:extra-deps {ch.qos.logback/logback-classic {:mvn/version "1.2.11"}}
+            :exec-fn    com.eldrix.trud.core/download}
 
            :test
            {:extra-paths ["test" "test/resources"]
