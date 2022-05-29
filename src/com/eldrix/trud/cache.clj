@@ -17,16 +17,10 @@
     - target  : path to target."
   [^String url ^Path target]
   @(http/get url {:as :stream}                              ;; body will be a java.io.InputStream
-             (fn [{:keys [status headers body error opts]}]
+             (fn [{:keys [status body error]}]
                (if error
                  (throw (ex-info "Unable to download" {:url url :status status :error error}))
-                 (with-open [output (io/output-stream (.toFile target))]
-                   (let [buffer (make-array Byte/TYPE (* 1024 16))]
-                     (loop [count 0 current-total 0]
-                       (let [size (.read body buffer)]
-                         (when (pos? size)
-                           (do (.write output buffer 0 size)
-                               (recur (inc count) (long (+ current-total size)))))))))))))
+                 (io/copy body (.toFile target))))))
 
 (defn- cache-path
   "Return the path to be used for the archive."
