@@ -49,7 +49,7 @@
   ([api-key item-identifier {:keys [only-latest?]}]
    (let [url (make-item-releases-url api-key item-identifier only-latest?)
          {:keys [status _headers body error]} @(http/get url)
-         body' (json/read-str body :key-fn keyword)
+         body' (when-not (str/blank? body) (json/read-str body :key-fn keyword))
          api-version (:apiVersion body')]
      (if (or error (not= 200 status))
        (throw (ex-info (str (or error (:message body'))
