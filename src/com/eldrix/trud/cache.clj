@@ -18,8 +18,8 @@
   [^String url ^Path target]
   @(http/get url {:as :stream}                              ;; body will be a java.io.InputStream
              (fn [{:keys [status body error]}]
-               (if error
-                 (throw (ex-info "Unable to download" {:url url :status status :error error}))
+               (if (or (not= 200 status) error)
+                 (throw (ex-info "Unable to download" {:url url :status status :error error :body body}))
                  (io/copy body (.toFile target))))))
 
 (defn- cache-path
