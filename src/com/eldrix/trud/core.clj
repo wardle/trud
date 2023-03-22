@@ -42,7 +42,7 @@
   - :archiveFilePath  : a `java.nio.files.Path` to the downloaded
                         distribution, if an update is required."
   ([config item-identifier] (get-latest config item-identifier nil))
-  ([{:keys [api-key cache-dir] :as config} item-identifier existing-date]
+  ([{:keys [api-key cache-dir]} item-identifier existing-date]
    (when-let [latest (release/get-latest api-key item-identifier)]
      (if-not (or (nil? existing-date) (.isBefore existing-date (:releaseDate latest)))
        latest

@@ -1,7 +1,7 @@
 (ns com.eldrix.trud.zip
   (:require [clojure.java.io :as io]
             [clojure.string :as str])
-  (:import (java.nio.file Files Path Paths LinkOption FileVisitOption)
+  (:import (java.nio.file Files Path Paths)
            (java.nio.file.attribute FileAttribute)
            (java.util.zip ZipInputStream)
            (java.util.regex Pattern)))

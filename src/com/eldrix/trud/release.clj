@@ -11,8 +11,8 @@
 (def ^:private expected-api-version "1")
 
 ;; release date format = CCYY-MM-DD
-(defn- ^LocalDate parse-date [^String s] (try (LocalDate/parse s (DateTimeFormatter/ISO_LOCAL_DATE)) (catch DateTimeParseException _)))
-(defn- ^Instant parse-instant [^String s] (try (Instant/parse s) (catch DateTimeParseException _)))
+(defn- parse-date ^LocalDate [^String s] (try (LocalDate/parse s (DateTimeFormatter/ISO_LOCAL_DATE)) (catch DateTimeParseException _)))
+(defn- parse-instant ^Instant [^String s] (try (Instant/parse s) (catch DateTimeParseException _)))
 
 (def ^:private release-parsers
   {:checksumFileLastModifiedTimestamp  parse-instant

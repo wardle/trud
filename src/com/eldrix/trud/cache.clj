@@ -58,7 +58,7 @@
 
 (defn- download-archive-file-to-cache
   "Download an archive file to the cache."
-  [dir {:keys [_itemIdentifier _releaseDate archiveFileUrl _archiveFileName archiveFileSizeBytes] :as release}]
+  [dir {:keys [archiveFileUrl] :as release}]
   (let [cp (cache-path dir release)]
     (Files/createDirectories (.getParent cp) (make-array FileAttribute 0))
     (try

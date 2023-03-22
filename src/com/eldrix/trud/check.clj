@@ -50,7 +50,7 @@
   "Determines whether the file specified has a valid checksum.
   Note: if we do not support a checksum type, then we return `true` with a
   warning."
-  [{:keys [checksumFileUrl archiveFileName] :as release} ^File downloaded-file]
+  [{:keys [checksumFileUrl archiveFileName] :as _release} ^File downloaded-file]
   (let [fciv (fetch-fciv checksumFileUrl)
         filename archiveFileName]
     (loop [props (get fciv filename)]
@@ -69,7 +69,6 @@
             (recur (next props))))))))
 
 (comment
-  (require '[com.eldrix.trud.release :as release])
   (def api-key (slurp "api-key.txt"))
   (release/get-releases api-key 341)
   (def release (release/get-latest api-key 341))
