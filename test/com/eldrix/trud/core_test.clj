@@ -14,5 +14,5 @@
 
 
 (comment
-  (release/get-latest (slurp "api-key.txt") 58)
+  (release/get-latest (str/trim-newline (slurp "api-key.txt")) 101)
   (run-tests))
