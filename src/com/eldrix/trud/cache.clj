@@ -46,9 +46,9 @@
           (and exists? right-size? checksum?)
           path
           (not right-size?)
-          (log/info "Unable to use cached archive: incorrect file size:" {:itemIdentifier itemIdentifier :expected archiveFileSizeBytes :got size})
+          (log/info "Unable to use archive: incorrect file size:" {:itemIdentifier itemIdentifier :expected archiveFileSizeBytes :got size})
           (not checksum?)
-          (log/info "Incorrect checksum for cached file."))))))
+          (log/info "Incorrect checksum for archive file"))))))
 
 (defn- archive-file-from-cache
   "Return an archive file from the cache, if it exists."
