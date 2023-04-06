@@ -16,11 +16,12 @@
     - url     : a string representation of a URL.
     - target  : path to target."
   [^String url ^Path target]
-  (hc/get url {:as :stream :http-client {:redirect-policy :normal}}                              ;; body will be a java.io.InputStream
-            (fn [{:keys [status body error]}]
-              (if (or (not= 200 status) error)
-                (throw (ex-info "Unable to download" {:url url :status status :error error :body body}))
-                (io/copy body (.toFile target))))))
+  (let [{:keys [status body error]} ;; body will be a java.io.InputStream
+        (hc/get url {:as :stream :http-client {:redirect-policy :normal}})]
+    (if (or (not= 200 status) error)
+      (throw (ex-info "Unable to download" {:url url :status status :error error :body body}))
+      (io/copy body (.toFile target)))))
+
 
 (defn- cache-path
   "Return the path to be used for the archive."
