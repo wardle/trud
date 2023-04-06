@@ -28,7 +28,7 @@
 (defn- make-item-releases-url
   "Generate the TRUD API endpoint URL to obtain release data about an item."
   [api-key item-identifier only-latest?]
-  (str "https://isd.digital.nhs.uk/trud3/api/v1/keys/"
+  (str "https://isd.digital.nhs.uk/trud/api/v1/keys/"
        api-key
        "/items/"
        item-identifier
