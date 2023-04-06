@@ -25,7 +25,7 @@
             [clojure.data.zip.xml :as zx]
             [buddy.core.codecs :as codecs]
             [buddy.core.hash :as hash]
-            [org.httpkit.client :as http]
+            [hato.client :as hc]
             [com.eldrix.trud.release :as release])
   (:import (java.io File)))
 
@@ -39,7 +39,7 @@
   as the type of hash (`:MD5` or `:SHA1` at the time of writing) and the
   actual hash as the value."
   [url]
-  (let [fciv (-> @(http/get url)
+  (let [fciv (-> (hc/get url {:http-client {:redirect-policy :normal}})
                  :body
                  xml/parse-str
                  zip/xml-zip

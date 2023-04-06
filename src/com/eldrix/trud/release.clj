@@ -3,7 +3,7 @@
   TRUD is the Technology Reference data Update Distribution."
   (:require [clojure.data.json :as json]
             [clojure.tools.logging.readable :as log]
-            [org.httpkit.client :as http]
+            [hato.client :as hc]
             [clojure.string :as str])
   (:import [java.time LocalDate Instant]
            [java.time.format DateTimeFormatter DateTimeParseException]))
@@ -48,7 +48,7 @@
   ([api-key item-identifier] (get-releases api-key item-identifier {}))
   ([api-key item-identifier {:keys [only-latest?]}]
    (let [url (make-item-releases-url api-key item-identifier only-latest?)
-         {:keys [status _headers body error]} @(http/get url)
+         {:keys [status _headers body error]} (hc/get url {:http-client {:redirect-policy :normal}})
          body' (when-not (str/blank? body) (json/read-str body :key-fn keyword))
          api-version (:apiVersion body')]
      (if (or error (not= 200 status))

@@ -4,7 +4,7 @@
             [clojure.java.io :as io]
             [clojure.tools.logging.readable :as log]
             [com.eldrix.trud.check :as check]
-            [org.httpkit.client :as http])
+            [hato.client :as hc])
   (:import (java.nio.file Paths Path Files LinkOption)
            (java.time LocalDate)
            (java.time.format DateTimeFormatter)
@@ -16,11 +16,11 @@
     - url     : a string representation of a URL.
     - target  : path to target."
   [^String url ^Path target]
-  @(http/get url {:as :stream}                              ;; body will be a java.io.InputStream
-             (fn [{:keys [status body error]}]
-               (if (or (not= 200 status) error)
-                 (throw (ex-info "Unable to download" {:url url :status status :error error :body body}))
-                 (io/copy body (.toFile target))))))
+  (hc/get url {:as :stream :http-client {:redirect-policy :normal}}                              ;; body will be a java.io.InputStream
+            (fn [{:keys [status body error]}]
+              (if (or (not= 200 status) error)
+                (throw (ex-info "Unable to download" {:url url :status status :error error :body body}))
+                (io/copy body (.toFile target))))))
 
 (defn- cache-path
   "Return the path to be used for the archive."
