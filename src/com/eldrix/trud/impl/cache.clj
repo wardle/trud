@@ -45,14 +45,10 @@
 (defn ^:private print-bar
   "Prints a progress bar. If the progress bar has a zero total, then an
   indeterminate spinner is printed. Otherwise, a progress bar is shown."
-  [prefix {:keys [done? total] :as bar}]
-  (let [fmt (cond
-              (= 0 total) (str prefix " :progress :bar (:elapsed)")
-              done?
-              (str prefix " :progress/:total   :percent% [:bar]  (:elapsed)")
-              :else
-              (str prefix " :progress/:total   :percent% [:bar]  (:elapsed / :remaining)"))]
-    (pr/print bar {:format fmt})))
+  [prefix {:keys [total] :as bar}]
+  (pr/print bar {:format (if (zero? total)
+                           (str prefix " :progress :bar (:elapsed)")
+                           (str prefix " :progress/:total   :percent% [:bar]  (:elapsed / :remaining)"))}))
 
 (defn ^:private print-progress
   "Prints progress of a file, continuing until either the file size has reached
@@ -66,7 +62,7 @@
         (if (or (= state :finished) (and (= progress total) (pos-int? total-file-size)))  ;; if we've finished, print completed bar
           (print-bar " " (assoc (pr/done bar) :progress total-file-size)) ;; ensure print a 100% complete with newline
           (do   ;; otherwise, let's carry on monitoring the file
-            (Thread/sleep 500)
+            (Thread/sleep 100)
             (print-bar (first spinner) bar)  ;; print current progress
             (recur (assoc bar :progress (.length f))
                    (next spinner))))))))
