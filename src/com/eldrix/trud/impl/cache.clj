@@ -47,11 +47,11 @@
   indeterminate spinner is printed. Otherwise, a progress bar is shown."
   [prefix {:keys [done? total] :as bar}]
   (let [fmt (cond
-              (= 0 total) (str prefix " :progress :bar :elapsed")
+              (= 0 total) (str prefix " :progress :bar (:elapsed)")
               done?
-              (str prefix " :progress/:total   :percent% [:bar]  :elapsed")
+              (str prefix " :progress/:total   :percent% [:bar]  (:elapsed)")
               :else
-              (str prefix " :progress/:total   :percent% [:bar]  :elapsed ETA: :remaining"))]
+              (str prefix " :progress/:total   :percent% [:bar]  (:elapsed / :remaining)"))]
     (pr/print bar {:format fmt})))
 
 (defn ^:private print-progress
