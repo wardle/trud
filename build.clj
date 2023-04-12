@@ -24,7 +24,7 @@
                             :tag                 (str "v" version)
                             :connection          "scm:git:git://github.com/wardle/trud.git"
                             :developerConnection "scm:git:ssh://git@github.com/wardle/trud.git"}})
-  (b/copy-dir {:src-dirs   ["src" "resources"]
+  (b/copy-dir {:src-dirs   ["src"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
           :jar-file  jar-file}))
