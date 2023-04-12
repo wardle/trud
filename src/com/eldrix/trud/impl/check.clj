@@ -1,4 +1,4 @@
-(ns com.eldrix.trud.check
+(ns com.eldrix.trud.impl.check
   "Check provides support for validating downloaded TRUD files.
 
   There are three mechanisms for checking the integrity of downloaded files.
@@ -25,8 +25,7 @@
             [clojure.data.zip.xml :as zx]
             [buddy.core.codecs :as codecs]
             [buddy.core.hash :as hash]
-            [hato.client :as hc]
-            [com.eldrix.trud.release :as release])
+            [hato.client :as hc])
   (:import (java.io File)))
 
 (defn- parse-fciv-file-entry [loc]
@@ -70,6 +69,7 @@
 
 (comment
   (def api-key (slurp "api-key.txt"))
+  (require '[com.eldrix.trud.impl.release :as release])
   (release/get-releases api-key 341)
   (def release (release/get-latest api-key 341))
   release

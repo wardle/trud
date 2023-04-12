@@ -1,4 +1,4 @@
-(ns com.eldrix.trud.release
+(ns com.eldrix.trud.impl.release
   "Support for the UK NHS Digital's TRUD.
   TRUD is the Technology Reference data Update Distribution."
   (:require [clojure.data.json :as json]

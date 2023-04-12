@@ -1,6 +1,6 @@
 (ns com.eldrix.trud.zip-test
   (:require [clojure.test :refer :all]
-            [com.eldrix.trud.zip :as zip]
+            [com.eldrix.trud.impl.zip :as zip]
             [clojure.string :as str]
             [clojure.java.io :as io])
   (:import (java.nio.file Path Paths LinkOption Files)))
@@ -34,6 +34,5 @@
     (is (Files/exists (.resolve unzipped "z2/z2-zip/z2f1") (into-array LinkOption [])))))
 
 (comment
-  (run-tests)
+  (run-tests))
 
-  )

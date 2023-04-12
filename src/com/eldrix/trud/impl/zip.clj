@@ -1,4 +1,4 @@
-(ns com.eldrix.trud.zip
+(ns com.eldrix.trud.impl.zip
   (:require [clojure.java.io :as io]
             [clojure.string :as str])
   (:import (java.nio.file Files Path Paths)
@@ -128,7 +128,7 @@
     (io/delete-file f :silently true)))
 
 (defn delete-paths
-  "Delete all of the paths specified, including nested structures.
+  "Delete all paths specified, including nested structures.
   Parameters:
   - paths : a sequence of objects `java.nio.file.Path`."
   [paths]

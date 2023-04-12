@@ -1,6 +1,6 @@
 (ns com.eldrix.trud.core
-  (:require [com.eldrix.trud.cache :as cache]
-            [com.eldrix.trud.release :as release]
+  (:require [com.eldrix.trud.impl.cache :as cache]
+            [com.eldrix.trud.impl.release :as release]
             [clojure.tools.logging.readable :as log]))
 
 (defn get-releases
@@ -17,9 +17,13 @@
   Parameters:
   - cache-dir : cache directory
   - release   : release information from TRUD, as returned by `get-releases`.
+  - config    : configuration, including:
+                |- :progress  - boolean, to print download progress or not
   Returns result as a `java.nio.file.Path`"
-  [dir release]
-  (cache/get-archive-file dir release))
+  ([dir release] (download-release dir release nil))
+  ([dir release config]
+   (when-let [f (cache/get-release-file dir release config)]
+     (.toPath f))))
 
 (defn get-latest
   "Returns the latest release of the specified item, if existing is outdated.
@@ -29,7 +33,7 @@
   - config : a configuration map containing:
              - api-key        : your NHS Digital TRUD api key
              - cache-dir      : where to download and cache distributions
-
+             - progress       : whether to print progress or not
   - item-identifier : the TRUD API item identifier you want.
   - existing-date   : (optional) existing date of this item you have
 
@@ -39,20 +43,22 @@
 
   - :needsUpdate?     : indicates if your current version (`existing-date`) is
                         outdated.
+  - :archiveFile      : a `java.io.File` to the downloaded distribution, if an
+                        update is required
   - :archiveFilePath  : a `java.nio.files.Path` to the downloaded
                         distribution, if an update is required."
   ([config item-identifier] (get-latest config item-identifier nil))
-  ([{:keys [api-key cache-dir]} item-identifier existing-date]
+  ([{:keys [api-key cache-dir progress]} item-identifier existing-date]
    (when-let [latest (release/get-latest api-key item-identifier)]
      (if-not (or (nil? existing-date) (.isBefore existing-date (:releaseDate latest)))
        latest
-       (assoc latest :needsUpdate? true
-                     :archiveFilePath (cache/get-archive-file cache-dir latest))))))
+       (when-let [f (cache/get-release-file cache-dir latest {:progress progress})]
+         (assoc latest :needsUpdate? true :archiveFile f :archiveFilePath (.toPath f)))))))
 
 (defn download
   [{:keys [api-key cache-dir items] :as opts}]
   (if-not (and api-key cache-dir items)
-    (println "Incorrect parameters\nUsage: clj -X com.eldrix.trud.core/download :api-key '\"XXX\"' :cache-dir '\"/tmp/trud\"' :items '[341 101 105]'")
+    (println "Incorrect parameters\nUsage: clj -X:download :progress 'true' :api-key '\"XXX\"' :cache-dir '\"/tmp/trud\"' :items '[341 101 105]'")
     (doseq [item items]
       (log/info "Processing item" item)
       (let [release (get-latest opts item)]
