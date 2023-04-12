@@ -52,18 +52,17 @@
 
 (defn ^:private print-progress
   "Prints progress of a file, continuing until either the file size has reached
-  the total-file-size, or `@state` is :finished."
-  [^File f total-file-size done]
+  the total-file-size, or cancel-ch is closed."
+  [^File f total-file-size cancel-ch]
   (loop [{:keys [progress total] :as bar} (pr/progress-bar total-file-size)
          spinner (cycle (seq "|/-\\"))]
-    (let [state @done]
-      (if (= state :error)   ;; if there's a download error, print bar as-is and quit
+    (let [[v p] (a/alts!! [(a/timeout 1000) cancel-ch])]
+      (if (= v :error)                                      ;; if there's a download error, print bar as-is and quit
         (print-bar (first spinner) bar)
-        (if (or (= state :finished) (and (= progress total) (pos-int? total-file-size)))  ;; if we've finished, print completed bar
+        (if (= p cancel-ch)                                 ;; anything else sent on channel means we are finished
           (print-bar " " (assoc (pr/done bar) :progress total-file-size)) ;; ensure print a 100% complete with newline
-          (do   ;; otherwise, let's carry on monitoring the file
-            (Thread/sleep 100)
-            (print-bar (first spinner) bar)  ;; print current progress
+          (do                                               ;; we were woken by the timeout, so loop
+            (print-bar (first spinner) bar)                 ;; print current progress
             (recur (assoc bar :progress (.length f))
                    (next spinner))))))))
 
@@ -82,18 +81,19 @@
        (throw (ex-info "invalid download job" (s/explain-data ::job job))))
      (let [cached-file (io/file dir filename)
            valid? (when (.exists cached-file) (validate cached-file))
-           state (atom :downloading)]
+           status (a/chan)]
        (if valid?
          {:from-cache true :f cached-file}                  ;; we have a valid file in cache, just return it
          (do                                                ;; no file, let's create cache [safe if already exists)
            (io/make-parents cached-file)
            (when progress
-             (a/thread (print-progress cached-file file-size state)))
+             (a/thread (print-progress cached-file file-size status)))
            (try
              (download-fn url cached-file)                  ;; try to download
+             (a/>!! status :done)
              (when (validate cached-file) {:from-cache false :f cached-file})
-             (catch Exception e (reset! state :error) (println "Failed to download item: " e) (throw e))
-             (finally (reset! state :finished)))))))))            ;; signal to progress printer that we're done
+             (catch Exception e (a/>!! status :error) (println "Failed to download item: " e) (throw e))
+             (finally (a/close! status)))))))))             ;; signal to progress printer that we're done
 
 
 ;;
