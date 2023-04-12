@@ -37,17 +37,18 @@ into the archive directory specified.
 From source code (you need to escape data literals when invoked this way):
 
 ```shell
-clj -X:download :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
+clj -X:download :progress 'true' :api-key '"xxx"' :cache-dir '"/tmp/trud"' :items '[101 105]'
 ```
 
 Parameters:
+- :progress - whether to show download progress (useful when used interactively)
 - :api-key - the API key for the NHS Digital TRUD service (the key, not a filename of a file containing the key)
 - :cache-dir - a directory to use as a cache, will be created if it doesn't exist
 
 If you ran the above command at intervals, the cache directory would be 
 populated with the latest releases of the items you specify. 
 I have used this approach in a cronjob, for example. Any tools that use `trud`
-for downloads can then easily share the same cache directory.
+for downloads can then easily share the same cache directory. 
 
 If there is interest, it would be straightforward to make a simple command-line 
 tool that can be run as a jar file. Raise an issue if you need this, but I 
@@ -65,7 +66,8 @@ mark@jupiter trud % clj -X:download :api-key '"***MY API KEY***"' :cache-dir '"c
 ```
 
 You can of course use `trud` interactively if you wish, but this approach also
-lends itself to automated scripting.
+lends itself to automated scripting. For automatic scripts, you'll likely not
+want to show download progress reporting.
 
 ### 3. Include the trud library in your project
 
