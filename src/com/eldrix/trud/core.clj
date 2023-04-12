@@ -1,6 +1,7 @@
 (ns com.eldrix.trud.core
   (:require [com.eldrix.trud.impl.cache :as cache]
             [com.eldrix.trud.impl.release :as release]
+            [com.eldrix.trud.impl.zip :as zip]
             [clojure.tools.logging.readable :as log]))
 
 (defn get-releases
@@ -63,6 +64,16 @@
       (log/info "Processing item" item)
       (let [release (get-latest opts item)]
         (log/info "Latest for item" item ":" (:id release) (select-keys release [:archiveFilePath :archiveFileSizeBytes]))))))
+
+(def unzip
+  "Unzip a zip archive to the directory specified.
+  Parameters:
+  - in  : path of zip file
+  - out : path of the directory to which files will be extracted.
+
+  If no `out` path is specified, a temporary directory will be created.
+  The out directory will be created if it doesn't exist."
+  zip/unzip)
 
 (comment
   (def api-key (clojure.string/trim-newline (slurp "api-key.txt")))
