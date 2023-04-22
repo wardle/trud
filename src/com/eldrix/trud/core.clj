@@ -75,6 +75,23 @@
   The out directory will be created if it doesn't exist."
   zip/unzip)
 
+(def unzip-query
+  "Resolves a query representing files from a nested directory structure,
+  including extracting nested zip files.
+
+  A query is a potentially nested vector of strings or paths.
+  [\"test.zip\"
+   [\"nested1.zip\"]
+   [\"nested2.zip\" \"file.txt\"]]
+
+  This will extract the test.zip file, extract the files in both nested1.zip
+  and nested2.zip and also returns a path for `file.txt` from the nested2.zip.
+
+  Results will be java.nio.file.Path objects in the same shape as the query.
+  For the example above, four paths will be returned."
+  zip/unzip-query)
+
+
 (comment
   (def api-key (clojure.string/trim-newline (slurp "api-key.txt")))
   api-key
