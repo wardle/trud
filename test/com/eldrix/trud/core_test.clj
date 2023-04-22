@@ -31,5 +31,6 @@
 
 
 (comment
-  (release/get-latest (str/trim-newline (slurp "api-key.txt")) 101)
+  (def api-key (str/trim-newline (slurp "api-key.txt")))
+  (release/get-latest api-key 101)
   (run-tests))
