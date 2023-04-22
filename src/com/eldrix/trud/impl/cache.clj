@@ -90,9 +90,9 @@
              (a/thread (print-progress cached-file file-size status)))
            (try
              (download-fn url cached-file)                  ;; try to download
-             (a/>!! status :done)
+             (when progress (a/>!! status :done))
              (when (validate cached-file) {:from-cache false :f cached-file})
-             (catch Exception e (a/>!! status :error) (println "Failed to download item: " e) (throw e))
+             (catch Exception e (when progress (a/>!! status :error)) (println "Failed to download item: " e) (throw e))
              (finally (a/close! status)))))))))             ;; signal to progress printer that we're done
 
 
