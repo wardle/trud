@@ -14,7 +14,7 @@
    ["z3.zip" ["z3" #"z3f\d"]]])
 
 (deftest simple
-  (let [paths (zip/unzip2 test-query)]
+  (let [paths (zip/unzip-query test-query)]
     (is (= 15 (count (flatten paths))))
     (doseq [path (flatten paths)]
       (is (instance? Path path)))

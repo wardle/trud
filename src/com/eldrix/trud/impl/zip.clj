@@ -77,7 +77,7 @@
           n' (str/replace n #"\." "-")]
       (unzip path (.resolve (.getParent path) ^String n')))))
 
-(defn unzip2
+(defn unzip-query
   "Resolves a query representing files from a nested directory structure,
   including extracting nested zip files.
 
@@ -90,17 +90,17 @@
   and nested2.zip and also returns a path for `file.txt` from the nested2.zip.
 
   Results will be java.nio.file.Path objects in the same shape as the query.
-  For the example below, four paths will be returned."
-  ([q] (unzip2 nil q))
+  For the example above, four paths will be returned."
+  ([q] (unzip-query nil q))
   ([^Path p q]
    (cond
      ;; turn a string query into a path and re-run
      (string? q)
-     (unzip2 (if p (.resolve p ^String q) (Paths/get q (make-array String 0))))
+     (unzip-query (if p (.resolve p ^String q) (Paths/get q (make-array String 0))))
 
      ;; process a vector by resolving (perhaps unzipping?) first item and resolving each subsequent in context
-     (vector? q) (let [unzipped (unzip2 p (first q))]
-                   (apply conj [unzipped] (map #(unzip2 unzipped %) (rest q))))
+     (vector? q) (let [unzipped (unzip-query p (first q))]
+                   (apply conj [unzipped] (map #(unzip-query unzipped %) (rest q))))
 
      ;; process a path depending on the file type
      (instance? Path q)
