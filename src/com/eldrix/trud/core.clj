@@ -91,6 +91,15 @@
   For the example above, four paths will be returned."
   zip/unzip-query)
 
+(def unzip-nested
+  "Unzip a zip archive to the directory specified, unzipping nested zip files.
+  Parameters:
+  - in  : path of zip file
+  - out : path of the directory to which files will be extracted.
+
+  If no `out` path is specified, a temporary directory will be created.
+  The out directory will be created if it doesn't exist."
+  zip/unzip-nested)
 
 (comment
   (def api-key (clojure.string/trim-newline (slurp "api-key.txt")))
