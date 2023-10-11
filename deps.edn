@@ -2,13 +2,13 @@
  :paths   ["src"]
 
  :deps    {org.clojure/clojure       {:mvn/version "1.11.1"}
-           org.clojure/core.async    {:mvn/version "1.6.673"}
+           org.clojure/core.async    {:mvn/version "1.6.681"}
            org.clojure/data.json     {:mvn/version "2.4.0"}
            org.clojure/data.xml      {:mvn/version "0.2.0-alpha8"}
            org.clojure/data.zip      {:mvn/version "1.0.0"}
            org.clojure/tools.logging {:mvn/version "1.2.4"}
 
-           buddy/buddy-core          {:mvn/version "1.10.413"
+           buddy/buddy-core          {:mvn/version "1.11.423"
                                       :exclusions  [cheshire/cheshire]}
            hato/hato                 {:mvn/version "0.9.0"}
            progrock/progrock         {:mvn/version "0.1.2"}}
@@ -20,7 +20,7 @@
 
            :download
            {:extra-paths ["resources"]
-            :extra-deps  {ch.qos.logback/logback-classic {:mvn/version "1.4.7"}}
+            :extra-deps  {ch.qos.logback/logback-classic {:mvn/version "1.4.11"}}
             :exec-fn     com.eldrix.trud.core/download}
 
            :test
