@@ -13,7 +13,7 @@
    ["z3.zip" #"z3/z3f\d"]
    ["z3.zip" ["z3" #"z3f\d"]]])
 
-(deftest simple
+(deftest unzip-query
   (let [paths (zip/unzip-query test-query)]
     (is (= 15 (count (flatten paths))))
     (doseq [path (flatten paths)]
@@ -26,12 +26,18 @@
       (is (= 3 (count z3-files))))
     (zip/delete-paths paths)))
 
-(deftest nested
+(deftest unzip-nested
   (let [unzipped (zip/unzip-nested (Paths/get (.toURI (io/resource "test.zip"))))]
     (is (Files/exists unzipped (into-array LinkOption [])))
     (is (Files/exists (.resolve unzipped "f1") (into-array LinkOption [])))
     (is (Files/exists (.resolve unzipped "Z1-ZIP/z1f1") (into-array LinkOption [])))
     (is (Files/exists (.resolve unzipped "z2/z2-zip/z2f1") (into-array LinkOption [])))))
+
+(deftest unzip-simple
+  (let [unzipped (zip/unzip (Paths/get (.toURI (io/resource "test.zip"))))
+        zipped (zip/zip (.toFile unzipped))
+        unzipped' (zip/unzip (.toPath zipped))]
+    (println unzipped')))
 
 (comment
   (run-tests))
