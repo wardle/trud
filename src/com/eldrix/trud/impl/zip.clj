@@ -1,9 +1,10 @@
 (ns com.eldrix.trud.impl.zip
   (:require [clojure.java.io :as io]
             [clojure.string :as str])
-  (:import (java.nio.file Files Path Paths)
+  (:import (java.io File FileOutputStream)
+           (java.nio.file Files Path Paths)
            (java.nio.file.attribute FileAttribute)
-           (java.util.zip ZipInputStream)
+           (java.util.zip ZipEntry ZipInputStream ZipOutputStream)
            (java.util.regex Pattern)))
 
 (set! *warn-on-reflection* true)
@@ -135,6 +136,24 @@
   - paths : a sequence of objects `java.nio.file.Path`."
   [paths]
   (doseq [path (flatten paths)]
-    (delete-files (.toFile path))))
+    (delete-files (.toFile ^Path path))))
+
+(defn zip
+  "Zip a file or directory, either to a temporary file, or the named file.
+  Returns `java.io.File` for the created zip file."
+  ([f]
+   (zip (.toFile (Files/createTempFile nil "zip" (make-array FileAttribute 0))) f))
+  ([zip-file f]
+   (let [zf (io/file zip-file)]
+     (with-open [fos (FileOutputStream. zf)
+                 zos (ZipOutputStream. fos)]
+       (let [f' (io/file f)
+             root-path (.getParent (.toAbsolutePath (.toPath f')))]
+         (doseq [^File f'' (filter #(.isFile ^File %) (file-seq f'))]
+           (let [n (str (.relativize root-path (.toAbsolutePath (.toPath f''))))]
+             (.putNextEntry zos (ZipEntry. n))
+             (io/copy f'' zos)
+             (.closeEntry zos)))
+         zf)))))
 
 (comment)
