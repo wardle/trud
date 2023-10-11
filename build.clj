@@ -23,7 +23,17 @@
                 :scm       {:url                 "https://github.com/wardle/trud"
                             :tag                 (str "v" version)
                             :connection          "scm:git:git://github.com/wardle/trud.git"
-                            :developerConnection "scm:git:ssh://git@github.com/wardle/trud.git"}})
+                            :developerConnection "scm:git:ssh://git@github.com/wardle/trud.git"}
+                :pom-data [[:description "Tools to automate downloads from the UK TRUD (Technology Reference data Update Distribution)"]
+                           [:developers
+                            [:developer
+                             [:id "wardle"] [:name "Mark Wardle"] [:email "mark@wardle.org"] [:url "https://wardle.org"]]]
+                           [:organization [:name "Eldrix Ltd"]]
+                           [:licenses
+                            [:license
+                             [:name "The Apache Software License, Version 2.0"]
+                             [:url "http://www.apache.org/licenses/LICENSE-2.0.txt"]
+                             [:distribution "repo"]]]]})
   (b/copy-dir {:src-dirs   ["src"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir

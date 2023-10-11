@@ -14,7 +14,7 @@
            progrock/progrock         {:mvn/version "0.1.2"}}
 
  :aliases {:build
-           {:deps       {io.github.clojure/tools.build {:git/tag "v0.9.4" :git/sha "76b78fe"}
+           {:deps       {io.github.clojure/tools.build {:git/tag "v0.9.6" :git/sha "8e78bcc"}
                          slipset/deps-deploy           {:mvn/version "RELEASE"}}
             :ns-default build}
 
