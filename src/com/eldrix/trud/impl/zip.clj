@@ -6,6 +6,8 @@
            (java.util.zip ZipInputStream)
            (java.util.regex Pattern)))
 
+(set! *warn-on-reflection* true)
+
 (defn unzip
   "Unzip a zip archive to the directory specified.
   Parameters:
@@ -104,16 +106,16 @@
 
      ;; process a path depending on the file type
      (instance? Path q)
-     (if (str/ends-with? (str/lower-case (.toString q)) ".zip") ; - unzip zip files and return extracted files
+     (if (str/ends-with? (str/lower-case (str q)) ".zip")   ; - unzip zip files and return extracted files
        (unzip q)
        (if p (.resolve p ^Path q) q))
 
      ;; turn a regexp into a vector of filenames matching that regexp
      (and p (instance? Pattern q))
      (->> (file-seq (.toFile p))                            ;; sequence; each a java.io.File
-          (map #(.toPath %))                                ;; convert each to a java.nio.Path
+          (map #(.toPath ^File %))                          ;; convert each to a java.nio.Path
           (map #(.relativize p %))                          ;; generate a relative path
-          (filter #(re-matches q (.toString %)))            ;; filter matching based on path
+          (filter #(re-matches q (str %)))                  ;; filter matching based on path
           (map #(.resolve p ^Path %)))                      ;; finally, back to an absolute path
 
      ;; return an empty slot if we haven't been able to resolve anything sensible
