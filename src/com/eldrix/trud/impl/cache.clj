@@ -151,14 +151,16 @@
      f)))
 
 (defn ^:deprecated get-archive-file
-  "Get an archive file either from the cache or downloaded from TRUD.
+  "DEPRECATED: use `get-release-file` instead.
+  
+  Get an archive file either from the cache or downloaded from TRUD.
   Returns result as a `java.nio.file.Path`."
   [dir release]
   (when-let [f (get-release-file dir release)]
     (.toPath f)))
 
 (comment
-  (get-archive-file "/tmp/trud" {:itemIdentifier       341
+  (get-release-file "/tmp/trud" {:itemIdentifier       341
                                  :releaseDate          (LocalDate/of 2021 01 29)
                                  :archiveFileUrl       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                                  :archiveFileSizeBytes 13264
