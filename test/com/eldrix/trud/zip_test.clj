@@ -1,5 +1,5 @@
 (ns com.eldrix.trud.zip-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is run-tests]]
             [com.eldrix.trud.impl.zip :as zip]
             [clojure.string :as str]
             [clojure.java.io :as io])
