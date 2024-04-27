@@ -101,11 +101,11 @@
 ;;
 
 (defn- trud-cache-filename
-  "Return the file to be used for the archive."
-  [dir {:keys [itemIdentifier ^LocalDate releaseDate archiveFileName]}]
+  "Return the filename to be used for the archive."
+  [{:keys [itemIdentifier releaseDate archiveFileName]}]
   (str itemIdentifier
        "--"
-       (.format releaseDate DateTimeFormatter/ISO_LOCAL_DATE)
+       (.format ^LocalDate releaseDate DateTimeFormatter/ISO_LOCAL_DATE)
        "--"
        archiveFileName))
 
@@ -144,8 +144,8 @@
      (throw (ex-info "invalid release" (s/explain-data ::release release))))
    (let [item (select-keys release [:itemIdentifier :archiveFileName :releaseDate])
          cache (make-cache dir {:progress    progress
-                                :download-fn (fn [url target] (do (log/info "Downloading item" item) (download-url url target)))})
-         job {:url       url, :filename (trud-cache-filename dir release)
+                                :download-fn (fn [url target] (log/info "Downloading item" item) (download-url url target))})
+         job {:url       url, :filename (trud-cache-filename release)
               :file-size file-size, :validate (partial validate-trud-file release)}
          {:keys [from-cache f]} (cache job)]
      (if from-cache
