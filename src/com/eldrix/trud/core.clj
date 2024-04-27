@@ -36,10 +36,10 @@
              - cache-dir      : where to download and cache distributions
              - progress       : whether to print progress or not
   - item-identifier : the TRUD API item identifier you want.
-  - existing-date   : (optional) existing date of this item you have
+  - existing-date   : (optional) existing date of this item you have (java.time.LocalDate)
 
   Result is the data from the source [TRUD API](https://isd.digital.nhs.uk/trud3/user/guest/group/0/api)
-  with except that dates are parsed into java LocalDates to simplify sorting and
+  except that dates are parsed into java LocalDates to simplify sorting and
   comparison and the following keys are added:
 
   - :needsUpdate?     : indicates if your current version (`existing-date`) is
@@ -51,7 +51,7 @@
   ([config item-identifier] (get-latest config item-identifier nil))
   ([{:keys [api-key cache-dir progress]} item-identifier existing-date]
    (when-let [latest (release/get-latest api-key item-identifier)]
-     (if-not (or (nil? existing-date) (.isBefore existing-date (:releaseDate latest)))
+     (if-not (or (nil? existing-date) (.isBefore ^java.time.LocalDate existing-date (:releaseDate latest)))
        latest
        (when-let [f (cache/get-release-file cache-dir latest {:progress progress})]
          (assoc latest :needsUpdate? true :archiveFile f :archiveFilePath (.toPath f)))))))
@@ -102,8 +102,9 @@
   zip/unzip-nested)
 
 (comment
-  (def api-key (clojure.string/trim-newline (slurp "api-key.txt")))
+  (require '[clojure.string :as str])
+  (def api-key (str/trim-newline (slurp "api-key.txt")))
   api-key
   (def latest (release/get-latest api-key 341))
-  (cache/get-archive-file "cache" (release/get-latest api-key 341))
+  (cache/get-release-file "cache" (release/get-latest api-key 341))
   (def latest (get-latest {:api-key api-key :cache-dir "/tmp/trud"} 341)))
