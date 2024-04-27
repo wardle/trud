@@ -54,7 +54,7 @@
   "Prints progress of a file, continuing until either the file size has reached
   the total-file-size, or cancel-ch is closed."
   [^File f total-file-size cancel-ch]
-  (loop [{:keys [progress total] :as bar} (pr/progress-bar total-file-size)
+  (loop [bar (pr/progress-bar total-file-size)
          spinner (cycle (seq "|/-\\"))]
     (let [[v p] (a/alts!! [(a/timeout 1000) cancel-ch])]
       (if (= v :error)                                      ;; if there's a download error, print bar as-is and quit
