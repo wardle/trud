@@ -95,7 +95,6 @@
              (catch Exception e (when progress (a/>!! status :error)) (println "Failed to download item: " e) (throw e))
              (finally (a/close! status)))))))))             ;; signal to progress printer that we're done
 
-
 ;;
 ;; TRUD specific caching functionality
 ;;
@@ -148,9 +147,7 @@
          job {:url       url, :filename (trud-cache-filename release)
               :file-size file-size, :validate (partial validate-trud-file release)}
          {:keys [from-cache f]} (cache job)]
-     (if from-cache
-       (log/info "Item already in cache" (select-keys release [:itemIdentifier :archiveFileName :releaseDate]))
-       (log/info "Item downloaded " (select-keys release [:itemIdentifier :archiveFileName :releaseDate])))
+     (log/info (if from-cache "Item already in cache" "Item downloaded") item)
      f)))
 
 (defn ^:deprecated get-archive-file
