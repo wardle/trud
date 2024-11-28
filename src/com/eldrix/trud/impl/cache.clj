@@ -111,19 +111,17 @@
 (defn- validate-trud-file
   "Validates a downloaded TRUD release file according to release metadata,
   returning a `java.io.File` if it is valid."
-  [{:keys [itemIdentifier archiveFileSizeBytes] :as release} f]
-  (let [f' (io/file f)]
-    (when (.exists f')
-      (let [size (.length f')
-            right-size? (= archiveFileSizeBytes size)
-            checksum? (when right-size? (check/valid-checksum? release f'))]
-        (cond
-          (and right-size? checksum?)
-          f'
-          (not right-size?)
-          (log/info "Unable to use archive: incorrect file size:" {:itemIdentifier itemIdentifier :expected archiveFileSizeBytes :got size})
-          (not checksum?)
-          (log/info "Incorrect checksum for archive file"))))))
+  [{:keys [itemIdentifier] :as release} f]
+  (let [f' (io/file f)
+        {:keys [status message]} (check/check-integrity release f')]
+    (cond
+      (= :valid status)
+      f'
+      (= :not-checked status)
+      (do (log/warn (str "Unable to fully check integrity of archive: " message))
+          f')
+      :else
+      (log/info (str "Unable to use archive: " message)))))
 
 (s/def ::itemIdentifier int?)
 (s/def ::releaseDate (partial instance? LocalDate))

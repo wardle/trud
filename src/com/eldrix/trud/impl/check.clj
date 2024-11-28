@@ -1,14 +1,15 @@
 (ns com.eldrix.trud.impl.check
   "Check provides support for validating downloaded TRUD files.
 
-  There are three mechanisms for checking the integrity of downloaded files.
+  There are four mechanisms for checking the integrity of downloaded files.
 
-  1. Checksum  (hash)
-  2. Signature (GPG)
-  3. The use of https to download the files.
+  1. SHA256 hash provided in release metadata
+  2. Checksum file containing a hash (legacy; using FCIV)
+  3. Signature file (GPG)
+  4. The use of https to download the files.
 
-  It appears as if checksums are generated using a Windows command line tool
-  called FCIV (https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/fciv-availability-and-description).
+  It appears as if the legacy checksums are generated using a Windows command
+  line tool called FCIV (https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/fciv-availability-and-description).
 
   <?XML version=\"1.0\" encoding=\"utf-8\"?>
   <FCIV>
@@ -17,61 +18,59 @@
       </FILE_ENTRY>
   </FCIV>
 
-  It appears that FCIV generates only MD5 and SHA1 hashes."
-  (:require [clojure.data.xml :as xml]
-            [clojure.java.io :as io]
+  It appears that FCIV generates only MD5 and SHA1 hashes.
+
+  TRUD has been updated (see https://isd.digital.nhs.uk/trud/users/guest/filters/0/releases-help/sha256)
+  and now recommends using the SHA256 hash provided in the release metadata,
+  and so we can now avoid using the FCIV based hash system entirely in favour
+  of simply checking the SHA256 hash."
+  (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.zip :as zip]
-            [clojure.data.zip.xml :as zx]
             [buddy.core.codecs :as codecs]
-            [buddy.core.hash :as hash]
-            [hato.client :as hc])
-  (:import (java.io File)))
+            [buddy.core.hash :as hash]))
 
-(defn- parse-fciv-file-entry [loc]
-  (let [props (:content (zip/node loc))]
-    (apply hash-map (interleave (map :tag props) (map (comp first :content) props)))))
+(set! *warn-on-reflection* true)
 
-(defn- fetch-fciv
-  "Fetch and parse a FCIV XML structure from the URL specified.
-  Returns a map keyed by filename. Each value is itself a map with keys
-  as the type of hash (`:MD5` or `:SHA1` at the time of writing) and the
-  actual hash as the value."
-  [url]
-  (let [fciv (-> (hc/get url {:http-client {:redirect-policy :normal}})
-                 :body
-                 xml/parse-str
-                 zip/xml-zip
-                 (zx/xml-> :FCIV :FILE_ENTRY parse-fciv-file-entry))]
-    (apply hash-map (mapcat #(vector (:name %) (dissoc % :name)) fciv))))
+(defn sha256sum
+  "Return the SHA256 message digest for a file. Returns a string encoding the
+  digest as hexadecimal. Equivalent to the command-line 'sha256sum' on BSD/Linux
+  systems."
+  ^String [f]
+  (with-open [is (io/input-stream f)]
+    (codecs/bytes->hex (hash/sha256 is))))
 
-(defn valid-checksum?
-  "Determines whether the file specified has a valid checksum.
-  Note: if we do not support a checksum type, then we return `true` with a
-  warning."
-  [{:keys [checksumFileUrl archiveFileName] :as _release} ^File downloaded-file]
-  (let [fciv (fetch-fciv checksumFileUrl)
-        filename archiveFileName]
-    (loop [props (get fciv filename)]
-      (if-not props
-        (do (println "Warning: unable to validate checksum: no supported checksum available.\nPublished checksums:" fciv)
-            true)
-        (let [[k v] (first props)
-              engine (hash/resolve-digest-engine (keyword (str/lower-case (name k))))]
-          (if engine
-            (let [calc (-> downloaded-file
-                           io/input-stream
-                           (hash/-digest engine)
-                           codecs/bytes->b64
-                           codecs/bytes->str)]
-              (= v calc))
-            (recur (next props))))))))
+(defn check-integrity
+  "Checks integrity of a downloaded release file.
+  Parameters:
+  - release - release metadata
+  - downloaded-file - anything coercible using [[clojure.java.io/as-file]].
+  Returns a map containing
+  :status  - :valid, :invalid, or :not-checked if checksum could not be checked.
+  :reason  - a keyword if invalid (e.g. :size, :digest, :not-found)
+  :message - human-readable message"
+  [{:keys [archiveFileSha256 archiveFileSizeBytes] :as _release} downloaded-file]
+  (let [f (io/as-file downloaded-file)
+        size (.length f)]
+    (cond
+      (not (.exists f))
+      {:status :invalid :reason :not-found :message "File not found"}
+
+      (and archiveFileSizeBytes (not= archiveFileSizeBytes size))
+      {:status :invalid, :reason :size, :message (str "Incorrect file size; expected: '" archiveFileSizeBytes "', got: '" size "'")}
+
+      archiveFileSha256
+      (if (.equalsIgnoreCase (sha256sum f) archiveFileSha256)
+        {:status :valid}
+        {:status :invalid, :reason :digest, :message "Incorrect SHA256 digest"})
+
+      :else
+      {:status :not-checked, :message "No supported digest in release file"})))
 
 (comment
-  (def api-key (slurp "api-key.txt"))
+  (def api-key (str/trim (slurp "api-key.txt")))
   (require '[com.eldrix.trud.impl.release :as release])
-  (release/get-releases api-key 341)
-  (def release (release/get-latest api-key 341))
+  (release/get-releases api-key 101)
+  (def release (release/get-latest api-key 101))
   release
-  (fetch-fciv (:checksumFileUrl release))
-  (valid-checksum? release (File. "/tmp/trud/341--2021-01-29--hscorgrefdataxml_data_1.0.0_20210129000001.zip")))
+  (sha256sum "README.md")
+  (check-integrity {:archiveFileSizeBytes 8878 :archiveFileSha56 "1bcbf6877871c3edb4ff3075819f3a773c62f923c8187af4e4efc6ea9c15f624"} "README.md"))
