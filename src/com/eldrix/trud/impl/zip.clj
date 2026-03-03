@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str])
   (:import (java.io File FileOutputStream)
+           (java.nio.charset Charset)
            (java.nio.file Files Path Paths)
            (java.nio.file.attribute FileAttribute)
            (java.util.zip ZipEntry ZipInputStream ZipOutputStream)
@@ -21,7 +22,7 @@
   ([^Path in ^Path out]
    (let [out-path (if out (Files/createDirectories out (make-array FileAttribute 0)) ;; this will be a NOP if directory already exists
                           (Files/createTempDirectory "trud" (make-array FileAttribute 0)))]
-     (with-open [input (ZipInputStream. (io/input-stream (.toFile in)))]
+     (with-open [input (ZipInputStream. (io/input-stream (.toFile in)) (Charset/forName "IBM437"))]
        (loop [entry (.getNextEntry input)]
          (if-not entry
            out-path
@@ -51,7 +52,7 @@
   ([^Path in ^Path out]
    (let [out-path (if out (Files/createDirectories out (make-array FileAttribute 0)) ;; this will be a NOP if directory already exists
                           (Files/createTempDirectory "trud" (make-array FileAttribute 0)))]
-     (with-open [input (ZipInputStream. (io/input-stream (.toFile in)))]
+     (with-open [input (ZipInputStream. (io/input-stream (.toFile in)) (Charset/forName "IBM437"))]
        (loop [entry (.getNextEntry input)
               nested []]
          (if-not entry
